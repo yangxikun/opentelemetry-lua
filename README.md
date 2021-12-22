@@ -17,6 +17,7 @@ This project currently lives in a dev status.
     local otlp_exporter_new = require("opentelemetry.trace.exporter.otlp").new
     local resource_new = require("opentelemetry.resource").new
     local attr = require("opentelemetry.attribute")
+    local context = require("opentelemetry.context").new(ngx_context_storage)
     local trace_context = require("opentelemetry.trace.propagation.trace_context")
     local carrier_new = require("opentelemetry.trace.propagation.ngx_carrier").new
     local exporter_client_new = require("opentelemetry.trace.exporter.ngx_http_client").new
@@ -32,22 +33,26 @@ This project currently lives in a dev status.
     local tracer = tp:tracer("opentelemetry-lua")
 
     -- propagate upstream trace context, and start a span with attributes
-    local span = tracer:start(trace_context.extract(carrier_new()), "access_by_lua_block", {
+    local context, span = tracer:start(trace_context.extract(context, carrier_new()), "access_by_lua_block", {
         kind = span_kind.internal,
         attributes = {attr.double("attr_double", 10.24), attr.bool("attr_bool", true)},
     })
 
+    -- associates a Context with the caller's current execution unit
+    context:attach()
+
     -- inject trace context
-    trace_context.inject(span:context(), carrier_new())
+    trace_context.inject(context, carrier_new())
 
     -- start sub span
-    local sub_span = tracer:start(ngx.ctx.span:context(), "header_filter_by_lua_block")
+    local sub_context, sub_span = tracer:start(context, "sub-span")
     -- record error
     sub_span:record_error("this is err")
     -- set status
     sub_span:set_status(span_status.error, "set status err")
     -- add an event
     sub_span:add_event("event1", {attributes = {attr.string("attr_string", "header_filter_by_lua_block")}})
+
     sub_span:finish();
     span:finish()
 ```

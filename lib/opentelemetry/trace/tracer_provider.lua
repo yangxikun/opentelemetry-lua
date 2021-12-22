@@ -21,9 +21,12 @@ local mt = {
 -- @return              tracer provider factory
 ------------------------------------------------------------------
 function _M.new(span_processors, opts)
+    if not opts then
+        opts = {}
+    end
     local self = {
         span_processors = span_processors,
-        sampler = opts.sampler and opts.sampler or parent_base_sampler_new(always_on_sampler_new()),
+        sampler = opts.sampler or parent_base_sampler_new(always_on_sampler_new()),
         resource = opts.resource,
         id_generator = id_generator,
         named_tracer = {},

@@ -13,7 +13,7 @@ function _M.new(tracer, ctx)
     return setmetatable(self, mt)
 end
 
-function _M.span_context(self)
+function _M.context(self)
     return self.ctx
 end
 
