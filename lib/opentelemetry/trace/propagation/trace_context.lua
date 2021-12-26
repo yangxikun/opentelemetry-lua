@@ -18,7 +18,9 @@ function _M.inject(context, carrier)
     local traceparent = string.format("00-%s-%s-%02x",
             span_context.trace_id, span_context.span_id, span_context.trace_flags)
     carrier:set(traceparent_header, traceparent)
-    carrier:set(tracestate_header, span_context.trace_state)
+    if span_context.trace_state then
+        carrier:set(tracestate_header, span_context.trace_state)
+    end
 end
 
 local function split(inputstr, sep)

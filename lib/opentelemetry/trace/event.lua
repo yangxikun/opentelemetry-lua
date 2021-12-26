@@ -19,7 +19,7 @@ function _M.new(name, opts)
     local self = {
         name = name,
         attributes = opts.attributes,
-        time_unix_nano = string.format("%d", util.nano_time())
+        time_unix_nano = string.format("%d", util.time_nano())
     }
     return setmetatable(self, mt)
 end

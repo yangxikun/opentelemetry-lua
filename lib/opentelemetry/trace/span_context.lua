@@ -28,4 +28,14 @@ function _M.is_sampled(self)
     return bit.band(self.trace_flags, 1) == 1
 end
 
+function _M.plain(self)
+    return {
+        trace_id = self.trace_id,
+        span_id  = self.span_id,
+        trace_flags = self.trace_flags,
+        trace_state = self.trace_state,
+        remote = self.remote,
+    }
+end
+
 return _M

@@ -9,8 +9,6 @@ run_tests();
 __DATA__
 
 === TEST 1: tracer provider force_flush and shutdown
-This is just a simple demonstration of the
-echo directive provided by ngx_http_echo_module.
 --- config
 location = /t {
     content_by_lua_block {
@@ -23,7 +21,7 @@ location = /t {
                 ngx.say("call span processor shutdown")
             end
         }
-        local tracer_provider = tracer_provider_new({fake_processor})
+        local tracer_provider = tracer_provider_new(fake_processor)
         tracer_provider:force_flush()
         tracer_provider:shutdown()
         ngx.say("done")

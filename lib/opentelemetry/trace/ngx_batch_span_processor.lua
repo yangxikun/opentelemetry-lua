@@ -63,7 +63,7 @@ function _M.new(exporter, opts)
     end
 
     local block_on_queue_full = true
-    if not opts.block_on_queue_full then
+    if opts.block_on_queue_full ~= nil and not opts.block_on_queue_full then
         block_on_queue_full = false
     end
 
@@ -89,9 +89,14 @@ function _M.on_end(self, span)
 
     if #self.queue + #self.batch_to_process * self.max_export_batch_size >= self.max_queue_size then
         if self.block_on_queue_full then
-            -- force flush queue
-            self.exporter:export_spans(self.queue)
-            table_clear(self.queue)
+            -- force flush some spans
+            if #self.queue == 0 then
+                self.exporter:export_spans(self.batch_to_process[#self.batch_to_process])
+                table.remove(self.batch_to_process)
+            else
+                self.exporter:export_spans(self.queue)
+                table_clear(self.queue)
+            end
             table.insert(self.queue, span)
         end
         -- drop span
@@ -103,7 +108,7 @@ function _M.on_end(self, span)
         self.first_queue_t = now()
     end
 
-    if #self.queue > self.max_export_batch_size then
+    if #self.queue >= self.max_export_batch_size then
         table.insert(self.batch_to_process, self.queue)
         self.queue = {}
     end

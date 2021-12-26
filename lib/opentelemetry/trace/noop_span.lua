@@ -1,20 +1,10 @@
+local empty_span_context = require("opentelemetry.trace.span_context").new()
+
 local _M = {
 }
 
-local mt = {
-    __index = _M
-}
-
-function _M.new(tracer, ctx)
-    local self = {
-        tracer = tracer,
-        ctx = ctx,
-    }
-    return setmetatable(self, mt)
-end
-
 function _M.context(self)
-    return self.ctx
+    return empty_span_context
 end
 
 function _M.is_recording()
@@ -40,13 +30,6 @@ function _M.set_name()
 end
 
 function _M.tracer_provider()
-    return self.tracer.provider
-end
-
-function _M.plain(self)
-    return {
-        ctx = self.ctx
-    }
 end
 
 return _M

@@ -1,10 +1,10 @@
 local _M = {}
 
-function _M.get(key)
+function _M.get(self, key)
     return ngx.ctx[key]
 end
 
-function _M.set(key, val)
+function _M.set(self, key, val)
     ngx.ctx[key] = val
 end
 

@@ -19,10 +19,10 @@ function _M.do_request(self, content_type, body)
     headers[":path"] = "/v1/traces"
     headers[":method"] = "POST"
     headers[":authority"] = self.authority
-    headers["Content-Type"] = content_type
+    headers["content-type"] = content_type
 
-    local headers, body = self.handle:httpCall(authority, headers, body, self.timeout, true)
-    -- TODO: check result
+    -- async request
+    self.handle:httpCall(self.authority, headers, body, self.timeout, true)
 end
 
 return _M

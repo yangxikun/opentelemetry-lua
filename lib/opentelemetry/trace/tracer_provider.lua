@@ -14,18 +14,18 @@ local mt = {
 ------------------------------------------------------------------
 -- create a tracer provider.
 --
--- @span_processors     a list of span_processor
+-- @span_processor      span_processor
 -- @opts                [optional] config
 --                          opts.sampler: see sampler dir
 --                          opts.resource
 -- @return              tracer provider factory
 ------------------------------------------------------------------
-function _M.new(span_processors, opts)
+function _M.new(span_processor, opts)
     if not opts then
         opts = {}
     end
     local self = {
-        span_processors = span_processors,
+        span_processors = span_processor and {span_processor} or {},
         sampler = opts.sampler or parent_base_sampler_new(always_on_sampler_new()),
         resource = opts.resource,
         id_generator = id_generator,
@@ -70,6 +70,14 @@ function _M.shutdown(self)
     for _, sp in ipairs(self.span_processors) do
         sp:shutdown()
     end
+end
+
+function _M.register_span_processor(self, sp)
+    table.insert(self.span_processors, sp)
+end
+
+function _M.set_span_processors(self, ...)
+    self.span_processors = {...}
 end
 
 return _M

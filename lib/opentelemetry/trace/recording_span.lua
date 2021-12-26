@@ -29,7 +29,7 @@ function _M.new(tracer, parent_ctx, ctx, name, config)
         parent_ctx = parent_ctx,
         ctx = ctx,
         name = name,
-        start_time = util.nano_time(),
+        start_time = util.time_nano(),
         end_time = 0,
         kind = span_kind.validate(config.kind),
         attributes = config.attributes or {},
@@ -69,7 +69,7 @@ function _M.set_status(self, code, message)
     self.status = status
 end
 
-function _M.set_attributes(...)
+function _M.set_attributes(self, ...)
     if not self:is_recording() then
         return
     end
@@ -87,7 +87,7 @@ function _M.finish(self)
         return
     end
 
-    self.end_time = util.nano_time()
+    self.end_time = util.time_nano()
     for _, sp in ipairs(self.tracer.provider.span_processors) do
         sp:on_end(self)
     end
@@ -133,6 +133,20 @@ end
 
 function _M.tracer_provider(self)
     return self.tracer.provider
+end
+
+function _M.plain(self)
+    return {
+        tracer = {il = self.tracer.il},
+        parent_ctx = self.parent_ctx:plain(),
+        ctx = self.ctx:plain(),
+        name = self.name,
+        start_time = self.start_time,
+        end_time = self.end_time,
+        kind = self.kind,
+        attributes = self.attributes,
+        events = self.events,
+    }
 end
 
 return _M

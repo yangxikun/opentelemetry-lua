@@ -1,4 +1,5 @@
 local non_recording_span_new = require("opentelemetry.trace.non_recording_span").new
+local noop_span = require("opentelemetry.trace.noop_span")
 
 local _M = {
 }
@@ -7,21 +8,23 @@ local mt = {
     __index = _M
 }
 
+local key = "opentelemetry-context"
+
 function _M.new(storage)
-    return setmetatable({storage = storage}, mt)
+    return setmetatable({storage = storage, sp = noop_span}, mt)
 end
 
 function _M.attach(self)
     self.prev = self:current()
-    self.storage.set("opentelemetry-context", self)
+    self.storage:set(key, self)
 end
 
 function _M.detach(self)
-    self.storage.set("opentelemetry-context", self.prev)
+    self.storage:set(key, self.prev)
 end
 
 function _M.current(self)
-    return self.storage.get("opentelemetry-context")
+    return self.storage:get(key)
 end
 
 function _M.with_span(self, span)

@@ -34,7 +34,7 @@ local function new_span(self, context, name, config)
 
     local sampling_result = self.provider.sampler:should_sample({
         parent_ctx     = span_context,
-        trace_id       = race_id,
+        trace_id       = trace_id,
         name           = name,
         kind           = span_kind.validate(config.kind),
         attributes     = config.attributes,

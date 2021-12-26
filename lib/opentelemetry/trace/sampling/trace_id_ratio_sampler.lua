@@ -19,14 +19,14 @@ function _M.new(fraction)
 
     return setmetatable({
         trace_id_upper_bound = fraction * 0xffffffff,
-        description = string.format("TraceIDRatioBased{%g}", fraction)
+        description = string.format("TraceIDRatioBased{%d}", fraction)
     }, mt)
 end
 
 function _M.should_sample(self, parameters)
     local parent_ctx = parameters.parent_ctx
     local n = 0
-    local trace_id = parent_ctx.trace_id
+    local trace_id = parameters.trace_id
     for i = 1, 8, 2 do
         n = tonumber(string.sub(trace_id, i, i + 1), 16) + (n * (2 ^ 8))
     end

@@ -1,17 +1,16 @@
 local _M = {}
 
-local function ngx_nano_time()
+-- performance better, but may cause clock skew
+local function ngx_time_nano()
     return ngx.now() * 1000000000
 end
 
 local ffi = require("ffi")
 
 ffi.cdef[[
-  typedef long time_t;
-
   typedef struct timeval {
-    time_t tv_sec;
-    time_t tv_usec;
+    long tv_sec;
+    long tv_usec;
   } timeval;
 
   int gettimeofday(struct timeval* t, void* tzp);
@@ -24,11 +23,11 @@ local function ffi_gettimeofday()
             tonumber(gettimeofday_struct.tv_usec) * 1000
 end
 
-_M.ngx_nano_time = ngx_nano_time
-_M.ffi_gettimeofday = ffi_gettimeofday
+_M.ngx_time_nano = ngx_time_nano
+_M.gettimeofday = ffi_gettimeofday
 
 -- default time function, will be used in this SDK
 -- change it if needed
-_M.nano_time = ngx_nano_time
+_M.time_nano = ffi_gettimeofday
 
 return _M
