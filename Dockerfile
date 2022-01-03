@@ -13,3 +13,6 @@ ENV PERL5LIB "/root/perl5/lib/perl5:$PERL5LIB"
 ENV PATH "/root/perl5/bin:$PATH"
 RUN perl -MCPAN -e 'install Bundle::LWP'
 RUN cpan Test::Nginx
+
+RUN yum install -y python3 git
+RUN pip3 install aiohttp

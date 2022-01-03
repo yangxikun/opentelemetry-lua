@@ -11,16 +11,20 @@ local mt = {
 local key = "opentelemetry-context"
 
 function _M.new(storage)
-    return setmetatable({storage = storage, sp = noop_span}, mt)
+    return setmetatable({storage = storage, sp = noop_span, is_attached = false}, mt)
 end
 
 function _M.attach(self)
     self.prev = self:current()
     self.storage:set(key, self)
+    self.is_attached = true
 end
 
 function _M.detach(self)
-    self.storage:set(key, self.prev)
+    if self.is_attached then
+        self.storage:set(key, self.prev)
+        self.is_attached = false
+    end
 end
 
 function _M.current(self)
@@ -28,7 +32,7 @@ function _M.current(self)
 end
 
 function _M.with_span(self, span)
-    return setmetatable({storage = self.storage, sp = span}, mt)
+    return setmetatable({storage = self.storage, sp = span, is_attached = false}, mt)
 end
 
 function _M.with_span_context(self, span_context)

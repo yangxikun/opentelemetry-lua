@@ -8,6 +8,14 @@ local mt = {
     __index = _M
 }
 
+------------------------------------------------------------------
+-- samples a given fraction of traces. Fractions >= 1 will
+-- always sample. Fractions < 0 are treated as zero. To respect the
+-- parent trace's sampled_flag, the trace_id_ratio_based sampler should be used
+-- as a delegate of a parent base sampler.
+--
+-- @return              sampler
+------------------------------------------------------------------
 function _M.new(fraction)
     if fraction >= 1 then
         return always_on_sampler_new()

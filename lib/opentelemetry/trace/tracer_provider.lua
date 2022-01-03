@@ -14,9 +14,9 @@ local mt = {
 ------------------------------------------------------------------
 -- create a tracer provider.
 --
--- @span_processor      span_processor
+-- @span_processor      [optional] span_processor
 -- @opts                [optional] config
---                          opts.sampler: see sampler dir
+--                          opts.sampler: opentelemetry.trace.sampling.*, default parent_base_sampler
 --                          opts.resource
 -- @return              tracer provider factory
 ------------------------------------------------------------------
@@ -37,11 +37,11 @@ end
 ------------------------------------------------------------------
 -- create a tracer.
 --
--- @name     name
--- @opts                optional config
---                          opts.version, specifies the version of the instrumentation library
---                          opts.schema_url, specifies the Schema URL that should be recorded in the emitted telemetry.
--- @return              tracer
+-- @name            tracer name
+-- @opts            [optional] config
+--                      opts.version: specifies the version of the instrumentation library
+--                      opts.schema_url: specifies the Schema URL that should be recorded in the emitted telemetry.
+-- @return          tracer
 ------------------------------------------------------------------
 function _M.tracer(self, name, opts)
     if not opts then

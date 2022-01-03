@@ -7,6 +7,15 @@ local mt = {
     __index = _M
 }
 
+------------------------------------------------------------------
+-- a composite sampler which behaves differently,
+-- based on the parent of the span. If the span has no parent,
+-- the root(Sampler) is used to make sampling decision. If the span has
+-- a parent, depending on whether the parent is sampled.
+--
+-- @root                sampler
+-- @return              sampler
+------------------------------------------------------------------
 function _M.new(root)
     return setmetatable({root = root}, mt)
 end

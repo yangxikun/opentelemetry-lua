@@ -12,7 +12,7 @@ local mt = {
 }
 
 ------------------------------------------------------------------
--- create a tracer provider.
+-- create a recording span.
 --
 -- @tracer
 -- @parent_ctx          parent span context
@@ -49,7 +49,7 @@ end
 ------------------------------------------------------------------
 -- set span status.
 --
--- @code             see span_status.lua
+-- @code             see opentelemetry.trace.span_status.*
 -- @message          error msg
 ------------------------------------------------------------------
 function _M.set_status(self, code, message)

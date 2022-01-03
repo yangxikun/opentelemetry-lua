@@ -59,14 +59,16 @@ local function new_span(self, context, name, config)
 end
 
 ------------------------------------------------------------------
--- create a tracer provider.
+-- create a span.
 --
--- @span_ctx            context
--- @span_name           new span name
+-- @span_ctx            context with parent span
+-- @span_name           span name
 -- @span_start_config   [optional]
---                          span_start_config.kind: see span_kind.lua
+--                          span_start_config.kind: opentelemetry.trace.span_kind.*
 --                          span_start_config.attributes: a list of attribute
--- @return              tracer provider factory
+-- @return
+--                      context: new context with span
+--                      span
 ------------------------------------------------------------------
 function _M.start(self, context, span_name, span_start_config)
     return new_span(self, context, span_name, span_start_config)

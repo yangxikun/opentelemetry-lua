@@ -1,6 +1,4 @@
 local pb = require("opentelemetry.trace.exporter.pb")
-local cjson = require("cjson.safe")
-cjson.encode_empty_table_as_object(false)
 
 local _M = {
 }
@@ -65,7 +63,6 @@ function _M.export_spans(self, spans)
     end
     local pb_body = pb.encode(body)
     self.client:do_request("application/x-protobuf", pb_body)
-    print(cjson.encode(body))
 end
 
 function _M.shutdown(self)

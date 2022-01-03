@@ -12,9 +12,9 @@ __DATA__
 --- config
 location = /t {
     content_by_lua_block {
-        local ngx_context_storage = require("opentelemetry.ngx_context_storage")
+        local context_storage = require("opentelemetry.context_storage")
         local span_context_new = require("opentelemetry.trace.span_context").new
-        local context = require("opentelemetry.context").new(ngx_context_storage)
+        local context = require("opentelemetry.context").new(context_storage)
 
         ngx.say("text context:with_span_context")
         context = context:with_span_context(span_context_new("trace_id", "span_id", 1, "trace_state", false))

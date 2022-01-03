@@ -7,6 +7,13 @@ local mt = {
     __index = _M
 }
 
+------------------------------------------------------------------
+-- create a http client used by exporter.
+--
+-- @address             opentelemetry collector: host:port
+-- @timeout             export request timeout
+-- @return              http client
+------------------------------------------------------------------
 function _M.new(address, timeout)
     local self = {
         uri = "http://" .. address .. "/v1/traces",

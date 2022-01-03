@@ -119,6 +119,8 @@ local function trim(s)
     return s:match'^%s*(.*%S)' or ''
 end
 
+-- Traceparent: 00-982d663bad6540dece76baf15dd2aa7f-6827812babd449d1-01
+--              version-trace-id-parent-id-trace-flags
 local function parse_trace_parent(trace_parent)
     if type(trace_parent) == "table" then
         return
@@ -163,8 +165,14 @@ local function parse_trace_parent(trace_parent)
     return ret[2], ret[3], trace_flags
 end
 
--- Traceparent: 00-982d663bad6540dece76baf15dd2aa7f-6827812babd449d1-01
---              version-trace-id-parent-id-trace-flags
+
+------------------------------------------------------------------
+-- extract span context from upstream request.
+--
+-- @context             current context
+-- @carrier             get traceparent and tracestate
+-- @return              new context
+------------------------------------------------------------------
 function _M.extract(context, carrier)
     local trace_id, span_id, trace_flags = parse_trace_parent(carrier:get(traceparent_header))
     if not trace_id or not span_id or not trace_flags then
