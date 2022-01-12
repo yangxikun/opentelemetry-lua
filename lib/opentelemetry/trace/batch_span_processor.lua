@@ -20,7 +20,9 @@ local function flush_batches(premature, self)
         return
     end
 
-    if now() - self.first_queue_t >= self.batch_timeout then
+    if #self.queue == 0 then
+        self.is_timer_running = false
+    elseif now() - self.first_queue_t >= self.batch_timeout then
         table.insert(self.batch_to_process, self.queue)
         self.queue = {}
         self.is_timer_running = false
