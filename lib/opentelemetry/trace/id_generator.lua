@@ -1,24 +1,43 @@
-local util  = require("opentelemetry.util")
-local chars = {"a", "b", "c", "d", "e", "f", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+local bit = require 'bit'
+
+local tohex = bit.tohex
+local fmt = string.format
+local random = math.random
 
 local _M = {}
 
-math.randomseed(util.gettimeofday())
-
-local function gen_id(length)
-    local randomString = ""
-    for i = 1, length do
-        randomString = randomString .. chars[math.random(1, #chars)]
-    end
-    return randomString
-end
+math.randomseed(ngx.time() + ngx.worker.pid())
 
 function _M.new_span_id()
-    return gen_id(16)
+    return fmt("%s%s%s%s%s%s%s%s",
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2),
+                tohex(random(0, 255), 2))
 end
 
 function _M.new_ids()
-    return gen_id(32), gen_id(16)
+    return fmt("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2),
+            tohex(random(0, 255), 2)), _M.new_span_id()
 end
 
 return _M
