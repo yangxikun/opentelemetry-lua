@@ -1,4 +1,6 @@
 local instrumentation_library_new = require("opentelemetry.instrumentation_library").new
+local resource = require("opentelemetry.resource")
+local attr = require("opentelemetry.attribute")
 local tracer_new = require("opentelemetry.trace.tracer").new
 local id_generator = require("opentelemetry.trace.id_generator")
 local always_on_sampler_new = require("opentelemetry.trace.sampling.always_on_sampler").new
@@ -24,10 +26,15 @@ function _M.new(span_processor, opts)
     if not opts then
         opts = {}
     end
+
+    local r = resource.new(attr.string("telemetry.sdk.language", "lua"),
+                            attr.string("telemetry.sdk.name", "opentelemetry-lua"),
+                            attr.string("telemetry.sdk.version", "dev"))
+
     local self = {
         span_processors = span_processor and {span_processor} or {},
         sampler = opts.sampler or parent_base_sampler_new(always_on_sampler_new()),
-        resource = opts.resource,
+        resource = resource.merge(opts.resource, r),
         id_generator = id_generator,
         named_tracer = {},
     }

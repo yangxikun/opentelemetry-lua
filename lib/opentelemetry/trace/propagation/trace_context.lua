@@ -69,7 +69,6 @@ local function parse_trace_state(trace_state)
         trace_state = {trace_state}
     end
 
-    local new_trace_state_keys = {}
     local new_trace_state = {}
     local members_count = 0
     for _, item in ipairs(trace_state) do
@@ -93,11 +92,7 @@ local function parse_trace_state(trace_state)
                 if members_count > 32 then
                     return ""
                 end
-                if new_trace_state_keys[key] then
-                    return ""
-                end
                 table.insert(new_trace_state, key .. "=" .. value)
-                new_trace_state_keys[key] = true
             end
         end
     end

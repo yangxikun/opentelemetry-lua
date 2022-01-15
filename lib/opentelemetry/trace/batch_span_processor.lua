@@ -15,31 +15,59 @@ local function table_clear(t)
     end
 end
 
+local function process_batches(premature, self, batches)
+    if premature then
+        return
+    end
+
+    for _, batch in ipairs(batches) do
+        self.exporter:export_spans(batch)
+    end
+end
+
+local function process_batches_timer(self, batches)
+    local hdl, err = timer_at(0, process_batches, self, batches)
+    if not hdl then
+        ngx.log(ngx.ERR, "failed to create timer: ", err)
+    end
+end
+
 local function flush_batches(premature, self)
     if premature then
         return
     end
 
-    if #self.queue == 0 then
-        self.is_timer_running = false
-    elseif now() - self.first_queue_t >= self.batch_timeout then
+    local delay
+
+    -- batch timeout
+    if now() - self.first_queue_t >= self.batch_timeout then
         table.insert(self.batch_to_process, self.queue)
         self.queue = {}
-        self.is_timer_running = false
     end
 
-    for _, batch in ipairs(self.batch_to_process) do
-        self.exporter:export_spans(batch)
-    end
-    table_clear(self.batch_to_process)
+    -- copy batch_to_process, avoid conflict with on_end
+    local batch_to_process = self.batch_to_process
+    self.batch_to_process = {}
 
-    if self.is_timer_running then
-        create_timer(self)
+    process_batches(nil, self, batch_to_process)
+
+    -- check if we still have work to do
+    if #self.batch_to_process > 0 then
+        delay = 0
+    elseif #self.queue > 0 then
+        delay = self.inactive_timeout
     end
+
+    if delay then
+        create_timer(self, delay)
+        return
+    end
+
+    self.is_timer_running = false
 end
 
-function create_timer(self)
-    local hdl, err = timer_at(self.inactive_timeout, flush_batches, self)
+function create_timer(self, delay)
+    local hdl, err = timer_at(delay, flush_batches, self)
     if not hdl then
         ngx.log(ngx.ERR, "failed to create timer: ", err)
         return
@@ -52,10 +80,10 @@ end
 --
 -- @exporter            opentelemetry.trace.exporter.oltp
 -- @opts                [optional]
---                          opts.block_on_queue_full: blocks on_end() method if the queue is full, default true
+--                          opts.drop_on_queue_full: if true, drop span when queue is full, otherwise force process batches, default true
 --                          opts.max_queue_size: maximum queue size to buffer spans for delayed processing, default 2048
 --                          opts.batch_timeout: maximum duration for constructing a batch, default 5s
---                          opts.inactive_timeout: maximum duration for processing batches, default 2s
+--                          opts.inactive_timeout: timer interval for processing batches, default 2s
 --                          opts.max_export_batch_size: maximum number of spans to process in a single batch, default 256
 -- @return              processor
 ------------------------------------------------------------------
@@ -64,14 +92,14 @@ function _M.new(exporter, opts)
         opts = {}
     end
 
-    local block_on_queue_full = true
-    if opts.block_on_queue_full ~= nil and not opts.block_on_queue_full then
-        block_on_queue_full = false
+    local drop_on_queue_full = true
+    if opts.drop_on_queue_full ~= nil and not opts.drop_on_queue_full then
+        drop_on_queue_full = false
     end
 
     local self = {
         exporter = exporter,
-        block_on_queue_full = block_on_queue_full,
+        drop_on_queue_full = drop_on_queue_full,
         max_queue_size = opts.max_queue_size or 2048,
         batch_timeout = opts.batch_timeout or 5,
         inactive_timeout = opts.inactive_timeout or 2,
@@ -81,6 +109,12 @@ function _M.new(exporter, opts)
         batch_to_process = {},
         is_timer_running = false,
     }
+
+    assert(self.batch_timeout > 0)
+    assert(self.inactive_timeout > 0)
+    assert(self.max_export_batch_size > 0)
+    assert(self.max_queue_size > self.max_export_batch_size)
+
     return setmetatable(self, mt)
 end
 
@@ -90,19 +124,15 @@ function _M.on_end(self, span)
     end
 
     if #self.queue + #self.batch_to_process * self.max_export_batch_size >= self.max_queue_size then
-        if self.block_on_queue_full then
-            -- force flush some spans
-            if #self.queue == 0 then
-                self.exporter:export_spans(self.batch_to_process[#self.batch_to_process])
-                table.remove(self.batch_to_process)
-            else
-                self.exporter:export_spans(self.queue)
-                table_clear(self.queue)
-            end
-            table.insert(self.queue, span)
-        end
         -- drop span
-        return
+        if self.drop_on_queue_full then
+            ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
+            return
+        end
+
+        -- export spans
+        process_batches_timer(self, self.batch_to_process)
+        self.batch_to_process = {}
     end
 
     table.insert(self.queue, span)
@@ -116,7 +146,7 @@ function _M.on_end(self, span)
     end
 
     if not self.is_timer_running then
-        create_timer(self)
+        create_timer(self, self.inactive_timeout)
     end
 end
 
@@ -125,12 +155,13 @@ function _M.force_flush(self)
         return
     end
 
-    for _, batch in ipairs(self.batch_to_process) do
-        self.exporter:export_spans(batch)
+    if #self.queue > 0 then
+        table.insert(self.batch_to_process, self.queue)
+        self.queue = {}
     end
-    table_clear(self.batch_to_process)
-    self.exporter:export_spans(self.queue)
-    table_clear(self.queue)
+
+    process_batches_timer(self, self.batch_to_process)
+    self.batch_to_process = {}
 end
 
 function _M.shutdown(self)

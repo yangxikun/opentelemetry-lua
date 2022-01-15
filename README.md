@@ -171,7 +171,7 @@ tp:set_span_processors(span_processor1, span_processor2)
 
 ### Span Processor
 
-`opentelemetry.trace.batch_span_processor` will store spans in a queue, and if the queue len equals max_export_batch_size, then will call exporter to export spans
+`opentelemetry.trace.batch_span_processor` will store spans in a queue, and start a background timer to export spans.
 
 ```lua
 local batch_span_processor_new = require("opentelemetry.trace.batch_span_processor").new
@@ -181,23 +181,7 @@ local batch_span_processor_new = require("opentelemetry.trace.batch_span_process
 --
 -- @exporter            opentelemetry.trace.exporter.oltp
 -- @opts                [optional]
---                          opts.max_export_batch_size: maximum number of spans to process in a single batch, default 1
--- @return              processor
-------------------------------------------------------------------
-local batch_span_processor = batch_span_processor_new(exporter, {max_export_batch_size = 2})
-```
-
-`opentelemetry.trace.batch_span_processor` is specified for Nginx+LUA/OpenResty ecosystems. It will start a background timer to export spans.
-
-```lua
-local batch_span_processor_new = require("opentelemetry.trace.batch_span_processor").new
-
-------------------------------------------------------------------
--- create a batch span processor.
---
--- @exporter            opentelemetry.trace.exporter.oltp
--- @opts                [optional]
---                          opts.block_on_queue_full: blocks on_end() method if the queue is full, default true
+--                          opts.drop_on_queue_full: if true, drop span when queue is full, otherwise force process batches, default true
 --                          opts.max_queue_size: maximum queue size to buffer spans for delayed processing, default 2048
 --                          opts.batch_timeout: maximum duration for constructing a batch, default 5s
 --                          opts.inactive_timeout: maximum duration for processing batches, default 2s
@@ -205,7 +189,7 @@ local batch_span_processor_new = require("opentelemetry.trace.batch_span_process
 -- @return              processor
 ------------------------------------------------------------------
 local batch_span_processor = batch_span_processor_new(exporter, {
-    block_on_queue_full = ture, max_queue_size = 1024, batch_timeout = 3, inactive_timeout = 1, max_export_batch_size = 10
+    drop_on_queue_full = false, max_queue_size = 1024, batch_timeout = 3, inactive_timeout = 1, max_export_batch_size = 10
 })
 ```
 
@@ -222,9 +206,10 @@ local http_client_new = require("opentelemetry.trace.exporter.http_client").new
 --
 -- @address             opentelemetry collector: host:port
 -- @timeout             export request timeout
+-- @headers             export request headers
 -- @return              http client
 ------------------------------------------------------------------
-local client = http_client_new("127.0.0.1:4317", 3)
+local client = http_client_new("127.0.0.1:4317", 3, {header_key = "header_val"})
 
 local exporter = otlp_exporter_new(client)
 ```
