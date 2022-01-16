@@ -29,7 +29,7 @@ function _M.new(span_processor, opts)
 
     local r = resource.new(attr.string("telemetry.sdk.language", "lua"),
                             attr.string("telemetry.sdk.name", "opentelemetry-lua"),
-                            attr.string("telemetry.sdk.version", "dev"))
+                            attr.string("telemetry.sdk.version", "0.1.1"))
 
     local self = {
         span_processors = span_processor and {span_processor} or {},
