@@ -9,12 +9,6 @@ local mt = {
     __index = _M
 }
 
-local function table_clear(t)
-    for i=1, #t do
-        t[i] = nil
-    end
-end
-
 local function process_batches(premature, self, batches)
     if premature then
         return
@@ -108,6 +102,7 @@ function _M.new(exporter, opts)
         first_queue_t = 0,
         batch_to_process = {},
         is_timer_running = false,
+        closed = false,
     }
 
     assert(self.batch_timeout > 0)
@@ -119,7 +114,7 @@ function _M.new(exporter, opts)
 end
 
 function _M.on_end(self, span)
-    if not span.ctx:is_sampled() then
+    if not span.ctx:is_sampled() or self.closed then
         return
     end
 
@@ -151,7 +146,7 @@ function _M.on_end(self, span)
 end
 
 function _M.force_flush(self)
-    if not self.exporter then
+    if self.closed then
         return
     end
 
@@ -160,13 +155,17 @@ function _M.force_flush(self)
         self.queue = {}
     end
 
+    if #self.batch_to_process == 0 then
+        return
+    end
+
     process_batches_timer(self, self.batch_to_process)
     self.batch_to_process = {}
 end
 
 function _M.shutdown(self)
     self:force_flush()
-    self.exporter = nil
+    self.closed = true
 end
 
 return _M
