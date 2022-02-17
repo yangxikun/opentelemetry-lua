@@ -34,7 +34,7 @@ local function flush_batches(premature, self)
     local delay
 
     -- batch timeout
-    if now() - self.first_queue_t >= self.batch_timeout then
+    if now() - self.first_queue_t >= self.batch_timeout and #self.queue > 0 then
         table.insert(self.batch_to_process, self.queue)
         self.queue = {}
     end

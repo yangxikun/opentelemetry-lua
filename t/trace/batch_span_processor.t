@@ -286,3 +286,56 @@ done
 --- grep_error_log eval
 qr/queue is full/
 --- grep_error_log_out
+
+
+=== TEST 6: batch_span_processor:on_end, batch timeout when queue is empty
+--- ONLY
+--- config
+location = /t {
+    content_by_lua_block {
+        local batch_span_processor_new = require("opentelemetry.trace.batch_span_processor").new
+        local span_context_new = require("opentelemetry.trace.span_context").new
+        local exporter = {
+            export_times = 0,
+            export_spans = function(self, spans)
+                if #spans ~= 2 then
+                    ngx.log(ngx.ERR, "expect export 2 spans, got ", #spans)
+                end
+                self.export_times = self.export_times + 1
+            end
+        }
+
+        local batch_span_processor = batch_span_processor_new(exporter, {
+            max_export_batch_size = 2, max_queue_size = 6, inactive_timeout = 1, batch_timeout = 2})
+        batch_span_processor:on_end({
+            ctx = span_context_new("trace_id", "span_id#1", 1, "trace_state", false)
+        })
+        ngx.sleep(1);
+
+        batch_span_processor:on_end({
+            ctx = span_context_new("trace_id", "span_id#2", 1, "trace_state", false)
+        })
+        ngx.sleep(1);
+
+        if exporter.export_times ~= 1 then
+            ngx.log(ngx.ERR, "expect export_times == 1")
+        end
+
+        if #batch_span_processor.batch_to_process ~=0 or #batch_span_processor.queue ~=0 then
+            ngx.log(ngx.ERR, "expect export all spans")
+        end
+
+        ngx.say("done")
+    }
+}
+--- request
+GET /t
+--- timeout: 4
+--- error_code: 200
+--- response_body
+done
+--- no_error_log
+[error]
+--- grep_error_log eval
+qr/queue is full/
+--- grep_error_log_out
