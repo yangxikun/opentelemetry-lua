@@ -127,7 +127,7 @@ end
 ------------------------------------------------------------------
 -- update span name
 ------------------------------------------------------------------
-function _M.set_name(name)
+function _M.set_name(self, name)
     self.name = name
 end
 

@@ -39,7 +39,7 @@ end
 function _M.set_name()
 end
 
-function _M.tracer_provider()
+function _M.tracer_provider(self)
     return self.tracer.provider
 end
 
