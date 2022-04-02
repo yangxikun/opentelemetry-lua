@@ -16,7 +16,10 @@ end
 
 local function hex2bytes(str)
     return (str:gsub('..', function (cc)
-        return string.char(tonumber(cc, 16))
+        local n = tonumber(cc, 16)
+        if n then
+            return string.char(n)
+        end
     end))
 end
 
