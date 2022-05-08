@@ -118,7 +118,7 @@ function _M.on_end(self, span)
         return
     end
 
-    if #self.queue + #self.batch_to_process * self.max_export_batch_size >= self.max_queue_size then
+    if #self.queue + #self.batch_to_process >= self.max_queue_size then
         -- drop span
         if self.drop_on_queue_full then
             ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
