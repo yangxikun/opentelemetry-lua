@@ -10,5 +10,8 @@ openresty-test-e2e:
 openresty-test-e2e-trace-context:
 	docker-compose exec $(DOCKER_COMPOSE_EXEC_OPTIONS) -- openresty bash /opt/opentelemetry-lua/e2e-trace-context.sh
 
+openresty-test-e2e-shd:
+	docker-compose run -e PROXY_ENDPOINT=http://openresty/test/e2e-shd --use-aliases --rm test-client
+
 openresty-unit-test:
 	docker-compose exec $(DOCKER_COMPOSE_EXEC_OPTIONS) -- openresty bash -c 'cd /opt/opentelemetry-lua && prove -r'

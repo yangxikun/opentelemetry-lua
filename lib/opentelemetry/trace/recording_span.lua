@@ -137,7 +137,14 @@ end
 
 function _M.plain(self)
     return {
-        tracer = {il = self.tracer.il},
+        tracer = {
+            il = self.tracer.il,
+            provider = {
+                resource = {
+                    attrs = self.tracer.provider.resource.attrs
+                }
+            }
+        },
         parent_ctx = self.parent_ctx:plain(),
         ctx = self.ctx:plain(),
         name = self.name,
@@ -146,6 +153,7 @@ function _M.plain(self)
         kind = self.kind,
         attributes = self.attributes,
         events = self.events,
+        status = self.status,
     }
 end
 
