@@ -109,7 +109,7 @@ function _M.new(exporter, opts)
         batch_to_process = {},
         is_timer_running = false,
         closed = false,
-        drop_count = 0,
+        dropping_count = 0,
     }
 
     assert(self.batch_timeout > 0)
@@ -129,7 +129,7 @@ function _M.on_end(self, span)
         -- drop span
         if self.drop_on_queue_full then
             ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
-            self.drop_count = self.drop_count + 1
+            self.dropping_count = self.dropping_count + 1
             return
         end
 
@@ -186,6 +186,10 @@ end
 
 function _M.get_queue_size(self)
     return #self.queue + #self.batch_to_process * self.max_export_batch_size
+end
+
+function _M.get_dropping_count(self)
+    return self.dropping_count
 end
 
 return _M
