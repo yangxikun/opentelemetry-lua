@@ -28,6 +28,9 @@ end
 
 local function flush_batches(premature, self)
     if premature then
+        ngx.log(ngx.INFO, "exiting, try export spans")
+
+        self:flush_all()
         return
     end
 
@@ -64,6 +67,9 @@ function create_timer(self, delay)
     local hdl, err = timer_at(delay, flush_batches, self)
     if not hdl then
         ngx.log(ngx.ERR, "failed to create timer: ", err)
+        if ngx.worker.exiting() then
+            self:flush_all(true)
+        end
         return
     end
     self.is_timer_running = true
@@ -103,6 +109,7 @@ function _M.new(exporter, opts)
         batch_to_process = {},
         is_timer_running = false,
         closed = false,
+        drop_count = 0,
     }
 
     assert(self.batch_timeout > 0)
@@ -118,10 +125,11 @@ function _M.on_end(self, span)
         return
     end
 
-    if #self.queue + #self.batch_to_process * self.max_export_batch_size >= self.max_queue_size then
+    if self:get_queue_size() >= self.max_queue_size then
         -- drop span
         if self.drop_on_queue_full then
             ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
+            self.drop_count = self.drop_count + 1
             return
         end
 
@@ -150,6 +158,15 @@ function _M.force_flush(self)
         return
     end
 
+    self:flush_all(true)
+end
+
+function _M.shutdown(self)
+    self:force_flush()
+    self.closed = true
+end
+
+function _M.flush_all(self, with_timer)
     if #self.queue > 0 then
         table.insert(self.batch_to_process, self.queue)
         self.queue = {}
@@ -158,14 +175,17 @@ function _M.force_flush(self)
     if #self.batch_to_process == 0 then
         return
     end
+    if with_timer then
+        process_batches_timer(self, self.batch_to_process)
+    else
+        process_batches(nil, self, self.batch_to_process)
+    end
 
-    process_batches_timer(self, self.batch_to_process)
     self.batch_to_process = {}
 end
 
-function _M.shutdown(self)
-    self:force_flush()
-    self.closed = true
+function _M.get_queue_size(self)
+    return #self.queue + #self.batch_to_process * self.max_export_batch_size
 end
 
 return _M
