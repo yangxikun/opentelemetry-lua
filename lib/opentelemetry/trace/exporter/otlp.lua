@@ -64,8 +64,7 @@ function _M.export_spans(self, spans)
             status = span.status,
         })
     end
-    local pb_body = pb.encode(body)
-    self.client:do_request(pb_body)
+    self.client:do_request(pb.encode(body))
 end
 
 function _M.shutdown(self)

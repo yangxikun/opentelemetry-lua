@@ -289,7 +289,6 @@ qr/queue is full/
 
 
 === TEST 6: batch_span_processor:on_end, batch timeout when queue is empty
---- ONLY
 --- config
 location = /t {
     content_by_lua_block {

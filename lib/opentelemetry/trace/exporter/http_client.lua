@@ -11,7 +11,7 @@ local mt = {
 -- create a http client used by exporter.
 --
 -- @address             opentelemetry collector: host:port
--- @timeout             export request timeout
+-- @timeout             export request timeout second
 -- @headers             export request headers
 -- @return              http client
 ------------------------------------------------------------------
@@ -42,11 +42,13 @@ function _M.do_request(self, body)
         httpc:close()
         return
     end
+
     if res.status ~= 200  then
         ngx.log(ngx.ERR, "request failed: ", res.body)
         httpc:close()
         return
     end
+
     local ok, err = httpc:set_keepalive(60000, 1)
     if not ok then
         ngx.log(ngx.ERR, "failed to set keepalive: ", err)

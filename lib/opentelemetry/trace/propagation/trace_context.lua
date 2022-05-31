@@ -117,10 +117,7 @@ end
 -- Traceparent: 00-982d663bad6540dece76baf15dd2aa7f-6827812babd449d1-01
 --              version-trace-id-parent-id-trace-flags
 local function parse_trace_parent(trace_parent)
-    if type(trace_parent) == "table" then
-        return
-    end
-    if not trace_parent or trace_parent == "" then
+    if type(trace_parent) ~= "string" or trace_parent == "" then
         return
     end
     local ret = split(trim(trace_parent), "-")
