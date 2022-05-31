@@ -47,7 +47,10 @@ function _M.do_request(self, body)
         httpc:close()
         return
     end
-    httpc:close()
+    local ok, err = httpc:set_keepalive(60000, 1)
+    if not ok then
+        ngx.log(ngx.ERR, "failed to set keepalive: ", err)
+    end
 end
 
 return _M
