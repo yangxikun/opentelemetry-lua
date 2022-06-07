@@ -18,13 +18,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Start containers
-        run: make openresty-dev DOCKER_COMPOSE_EXEC_OPTIONS="-T"
+        run: make openresty-dev CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
 
       - name: Run test-e2e-trace-context
-        run: make openresty-unit-test DOCKER_COMPOSE_EXEC_OPTIONS="-T"
+        run: make openresty-unit-test CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
 
       - name: Run openresty-test-e2e-trace-context
-        run: make openresty-test-e2e-trace-context DOCKER_COMPOSE_EXEC_OPTIONS="-T"
+        run: make openresty-test-e2e-trace-context CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
 
       - name: Run openresty-test-e2e
-        run: make openresty-test-e2e DOCKER_COMPOSE_EXEC_OPTIONS="-T"
+        run: make openresty-test-e2e CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
