@@ -68,7 +68,7 @@ function create_timer(self, delay)
     if not hdl then
         ngx.log(ngx.ERR, "failed to create timer: ", err)
         if ngx.worker.exiting() then
-            self:flush_all(true)
+            self:flush_all()
         end
         return
     end
