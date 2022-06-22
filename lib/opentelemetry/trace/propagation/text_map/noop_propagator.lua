@@ -27,12 +27,13 @@ end
 --------------------------------------------------------------------------------
 -- noop extraction
 --
--- @param _context       context storage
+-- @param context       context storage
 -- @param _carrier       nginx request
 -- @param _getter        getter for interacting with carrier
 -- @return nil
 --------------------------------------------------------------------------------
-function _M:extract(_context, _carrier, _getter)
+function _M:extract(context, _carrier, _getter)
+    return context
 end
 
 return _M

@@ -206,4 +206,8 @@ function _M.fields()
     return { "traceparent", "tracestate" }
 end
 
+function _M.plain()
+    return "hallo"
+end
+
 return _M

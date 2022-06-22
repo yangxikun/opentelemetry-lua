@@ -56,7 +56,7 @@ describe("text map propagator", function()
             local trace_id        = "10f5b3bcfe3f0c2c5e1ef150fe0b5872"
             local carrier         = newCarrier("traceparent", string.format("00-%s-172accbce5f048db-01", trace_id))
 
-            ctx = tmp:extract(context, carrier)
+            local ctx = tmp:extract(context, carrier)
             assert.are.same(ctx.sp:context().trace_id, trace_id)
         end)
     end)
