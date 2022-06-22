@@ -1,4 +1,4 @@
-local text_map_propagator = require "opentelemetry.trace.propagation.trace_context.text_map_propagator"
+local text_map_propagator = require "opentelemetry.trace.propagation.text_map.trace_context_propagator"
 local tracer_provider = require "opentelemetry.trace.tracer_provider"
 local context = require("opentelemetry.context")
 
@@ -60,5 +60,4 @@ describe("text map propagator", function()
             assert.are.same(ctx.sp:context().trace_id, trace_id)
         end)
     end)
-
 end)
