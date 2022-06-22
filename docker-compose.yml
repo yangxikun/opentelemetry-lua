@@ -11,6 +11,8 @@ services:
       - test-server
     networks:
       - opentelemetry-lua
+    ports:
+      - 80:80
   jaeger:
     image: jaegertracing/all-in-one
     ports:
@@ -40,6 +42,13 @@ services:
       - PROXY_ENDPOINT=${PROXY_ENDPOINT}
     networks:
       - opentelemetry-lua
-
+  openresty-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/opt/opentelemetry-lua
+    networks:
+      - opentelemetry-lua
 networks:
   opentelemetry-lua:
