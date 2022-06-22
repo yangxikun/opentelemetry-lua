@@ -6,7 +6,7 @@ local random = math.random
 
 local _M = {}
 
-math.randomseed(ngx.time() + ngx.worker.pid())
+math.randomseed(os.time(os.date("!*t")))
 
 function _M.new_span_id()
     return fmt("%s%s%s%s%s%s%s%s",

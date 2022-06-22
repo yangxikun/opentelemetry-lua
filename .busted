@@ -1,0 +1,9 @@
+return {
+  _all = {
+    coverage = false
+  },
+  default = {
+    verbose = true,
+    pattern = "_spec"
+  },
+}

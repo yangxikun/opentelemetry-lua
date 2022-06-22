@@ -16,3 +16,6 @@ openresty-unit-test:
 
 openresty-build:
 	$(CONTAINER_ORCHESTRATOR) build
+
+lua-unit-test:
+	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty-test bash -c 'cd /opt/opentelemetry-lua && busted --lpath="./lib/?.lua;./lib/?/?.lua;./lib/?/init.lua"' .
