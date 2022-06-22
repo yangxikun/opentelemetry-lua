@@ -1,6 +1,6 @@
 local span_context_new = require("opentelemetry.trace.span_context").new
-local text_map_getter_new = require("opentelemetry.trace.propagation.text_map_getter").new()
-local text_map_setter_new = require("opentelemetry.trace.propagation.text_map_setter").new()
+local text_map_getter_new = require("opentelemetry.trace.propagation.trace_context.text_map_getter").new()
+local text_map_setter_new = require("opentelemetry.trace.propagation.trace_context.text_map_setter").new()
 local empty_span_context = span_context_new()
 
 
