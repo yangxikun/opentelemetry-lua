@@ -6,7 +6,7 @@ openresty-dev:
 	$(CONTAINER_ORCHESTRATOR) exec $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'cd /opt/opentelemetry-lua && luarocks make && nginx -s reload'
 
 openresty-test-e2e:
-	$(CONTAINER_ORCHESTRATOR) run -e PROXY_ENDPOINT=http://openresty/test/e2e --rm test-client
+	$(CONTAINER_ORCHESTRATOR) run -e PROXY_ENDPOINT=http://openresty/test/e2e --use-aliases --rm test-client
 
 openresty-test-e2e-trace-context:
 	$(CONTAINER_ORCHESTRATOR) exec $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash /opt/opentelemetry-lua/e2e-trace-context.sh
