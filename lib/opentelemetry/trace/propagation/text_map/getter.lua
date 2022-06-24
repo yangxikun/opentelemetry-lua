@@ -17,7 +17,7 @@ end
 -- @return value of HTTP header
 ------------------------------------------------------------------
 function _M.get(carrier, key)
-    return carrier.get_headers[key]
+    return carrier.get_headers()[key]
 end
 
 return _M

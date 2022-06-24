@@ -6,7 +6,7 @@ source = {
 }
 
 description = {
-   summary = "The OpenTelemetry Lua SDK",
+   summary = "The OpenTelemetry Lua SDK. This is repo's default rockspec, which is used to test the HEAD commit.",
    homepage = "https://github.com/yangxikun/opentelemetry-lua",
    license = "Apache License 2.0"
 }
@@ -35,7 +35,11 @@ build = {
        ["opentelemetry.trace.non_recording_span"] = "lib/opentelemetry/trace/non_recording_span.lua",
        ["opentelemetry.trace.noop_span"] = "lib/opentelemetry/trace/noop_span.lua",
        ["opentelemetry.trace.propagation.carrier"] = "lib/opentelemetry/trace/propagation/carrier.lua",
-       ["opentelemetry.trace.propagation.trace_context"] = "lib/opentelemetry/trace/propagation/trace_context.lua",
+       ["opentelemetry.trace.propagation.text_map.trace_context_propagator"] = "lib/opentelemetry/trace/propagation/text_map/trace_context_propagator.lua",
+       ["opentelemetry.trace.propagation.text_map.composite_propagator"] = "lib/opentelemetry/trace/propagation/text_map/composite_propagator.lua",
+       ["opentelemetry.trace.propagation.text_map.getter"] = "lib/opentelemetry/trace/propagation/text_map/getter.lua",
+       ["opentelemetry.trace.propagation.text_map.setter"] = "lib/opentelemetry/trace/propagation/text_map/setter.lua",
+       ["opentelemetry.trace.propagation.text_map.noop_propagator"] = "lib/opentelemetry/trace/propagation/text_map/noop_propagator.lua",
        ["opentelemetry.trace.recording_span"] = "lib/opentelemetry/trace/recording_span.lua",
        ["opentelemetry.trace.sampling.always_off_sampler"] = "lib/opentelemetry/trace/sampling/always_off_sampler.lua",
        ["opentelemetry.trace.sampling.always_on_sampler"] = "lib/opentelemetry/trace/sampling/always_on_sampler.lua",
