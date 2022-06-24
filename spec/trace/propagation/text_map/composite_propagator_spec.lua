@@ -11,16 +11,13 @@ local context_storage = {
 }
 
 -- We're setting these on ngx.req but we aren't running openresty in these
--- tests, so we'll mock that out (ngx.req supports get_headers and set_header)
+-- tests, so we'll mock that out (ngx.req supports get_headers() and set_header(header_name))
 local function newCarrier(header, header_return)
-    local ret = {}
-    ret.get_headers = {}
-    ret.get_headers[header] = header_return
-
-    -- Pretty gnarly mocking here. set_header has a reference to ret, so we can
-    -- modify the state held in the get_headers field.
-    ret.set_header = function(name, val) ret.get_headers[name] = val end
-    return ret
+    local r = { headers = {} }
+    r.headers[header] = header_return
+    r.get_headers = function() return r.headers end
+    r.set_header = function(name, val) r.headers[name] = val end
+    return r
 end
 
 -- We'll need to add more propagators to the repo (Jaeger, B3, etc), in order to
@@ -48,7 +45,7 @@ describe("composite propagator", function()
         it("should add headers for each propagator", function()
             cp:composite_inject(new_ctx, carrier)
             assert.are.same(
-                carrier.get_headers["traceparent"],
+                carrier.get_headers()["traceparent"],
                 traceparent
             )
         end)

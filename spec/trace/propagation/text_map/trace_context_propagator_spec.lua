@@ -10,13 +10,13 @@ local context_storage = {
 }
 
 -- We're setting these on ngx.req but we aren't running openresty in these
--- tests, so we'll mock that out (ngx.req supports get_headers and set_header)
+-- tests, so we'll mock that out (ngx.req supports get_headers() and set_header(header_name))
 local function newCarrier(header, header_return)
-    local ret = {}
-    ret.get_headers = {}
-    ret.get_headers[header] = header_return
-    ret.set_header = function(header_name) end
-    return ret
+    local r = { headers = {} }
+    r.headers[header] = header_return
+    r.get_headers = function() return r.headers end
+    r.set_header = function(name, val) r.headers[name] = val end
+    return r
 end
 
 describe("text map propagator", function()
