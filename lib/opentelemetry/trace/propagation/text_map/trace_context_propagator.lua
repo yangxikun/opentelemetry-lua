@@ -3,7 +3,6 @@ local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter
 local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
 local empty_span_context = span_context_new()
 
--- all descendants get same getter and setter to avoid extra allocations
 local _M = {
 }
 
@@ -205,10 +204,6 @@ end
 
 function _M.fields()
     return { "traceparent", "tracestate" }
-end
-
-function _M.plain()
-    return "hallo"
 end
 
 return _M
