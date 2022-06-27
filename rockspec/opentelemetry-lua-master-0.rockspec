@@ -34,7 +34,6 @@ build = {
        ["opentelemetry.trace.batch_span_processor"] = "lib/opentelemetry/trace/batch_span_processor.lua",
        ["opentelemetry.trace.non_recording_span"] = "lib/opentelemetry/trace/non_recording_span.lua",
        ["opentelemetry.trace.noop_span"] = "lib/opentelemetry/trace/noop_span.lua",
-       ["opentelemetry.trace.propagation.carrier"] = "lib/opentelemetry/trace/propagation/carrier.lua",
        ["opentelemetry.trace.propagation.text_map.trace_context_propagator"] = "lib/opentelemetry/trace/propagation/text_map/trace_context_propagator.lua",
        ["opentelemetry.trace.propagation.text_map.composite_propagator"] = "lib/opentelemetry/trace/propagation/text_map/composite_propagator.lua",
        ["opentelemetry.trace.propagation.text_map.getter"] = "lib/opentelemetry/trace/propagation/text_map/getter.lua",
