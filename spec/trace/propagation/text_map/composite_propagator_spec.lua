@@ -23,7 +23,7 @@ end
 -- We'll need to add more propagators to the repo (Jaeger, B3, etc), in order to
 -- fully test this.
 describe("composite propagator", function()
-    describe(".composite_inject", function()
+    describe(".inject", function()
         local tmp             = text_map_propagator.new()
         local np              = noop_propagator.new()
         local cp              = composite_propagator.new({ tmp, np })
@@ -43,7 +43,7 @@ describe("composite propagator", function()
         local carrier = newCarrier("header", "value")
 
         it("should add headers for each propagator", function()
-            cp:composite_inject(new_ctx, carrier)
+            cp:inject(new_ctx, carrier)
             assert.are.same(
                 carrier.get_headers()["traceparent"],
                 traceparent
@@ -51,7 +51,7 @@ describe("composite propagator", function()
         end)
     end)
 
-    describe(".composite_extract #focus", function()
+    describe(".extract #focus", function()
         it("should extract headers for each propagator", function()
             local tmp      = text_map_propagator.new()
             local np       = noop_propagator.new()
@@ -59,8 +59,8 @@ describe("composite propagator", function()
             local trace_id = "10f5b3bcfe3f0c2c5e1ef150fe0b5872"
             local carrier  = newCarrier("traceparent",
                 string.format("00-%s-172accbce5f048db-01", trace_id))
-            local ctx = context.new(context_storage)
-            local new_ctx = cp:composite_extract(ctx, carrier)
+            local ctx      = context.new(context_storage)
+            local new_ctx  = cp:extract(ctx, carrier)
             assert.are.same(new_ctx.sp:context().trace_id, trace_id)
         end)
     end)
