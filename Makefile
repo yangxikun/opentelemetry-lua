@@ -15,7 +15,7 @@ openresty-unit-test:
 	$(CONTAINER_ORCHESTRATOR) exec $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'cd /opt/opentelemetry-lua && prove -r'
 
 lua-unit-test:
-	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty-test bash -c 'cd /opt/opentelemetry-lua && busted --lpath="./lib/?.lua;./lib/?/?.lua;./lib/?/init.lua"' .
+	$(CONTAINER_ORCHESTRATOR) run -e OTEL_LUA_RANDOMSEED=ostime $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty-test bash -c 'cd /opt/opentelemetry-lua && busted --lpath="./lib/?.lua;./lib/?/?.lua;./lib/?/init.lua"' .
 
 openresty-build:
 	$(CONTAINER_ORCHESTRATOR) build
