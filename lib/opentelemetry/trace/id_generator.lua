@@ -6,7 +6,11 @@ local random = math.random
 
 local _M = {}
 
-math.randomseed(ngx.time() + ngx.worker.pid())
+if (os.getenv("OTEL_LUA_RANDOMSEED") == "ostime") then
+    math.randomseed(os.time(os.date("!*t")))
+else
+    math.randomseed(ngx.time() + ngx.worker.pid())
+end
 
 function _M.new_span_id()
     return fmt("%s%s%s%s%s%s%s%s",

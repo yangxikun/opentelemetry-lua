@@ -1,25 +1,50 @@
 local span_context_new = require("opentelemetry.trace.span_context").new
+local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter")
+local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
 local empty_span_context = span_context_new()
 
+local _M = {
+}
 
-local _M = {}
+local mt = {
+    __index = _M,
+}
 
+-- these should be constants, but they were not supported until Lua 5.4, and
+-- LuaJIT (which openresty runs on) works up to Lua 5.2
 local traceparent_header = "traceparent"
 local tracestate_header  = "tracestate"
 
 local invalid_trace_id = '00000000000000000000000000000000'
 local invalid_span_id = '0000000000000000'
 
-function _M.inject(context, carrier)
+function _M.new()
+    return setmetatable(
+        {
+            text_map_setter = text_map_setter.new(),
+            text_map_getter = text_map_getter.new()
+        }, mt)
+end
+
+------------------------------------------------------------------
+-- Add tracing information to nginx request as headers
+--
+-- @param context       context storage
+-- @param carrier       nginx request
+-- @param setter        setter for interacting with carrier
+-- @return nil
+------------------------------------------------------------------
+function _M:inject(context, carrier, setter)
+    setter = setter or self.text_map_setter
     local span_context = context:span_context()
     if not span_context:is_valid() then
         return
     end
     local traceparent = string.format("00-%s-%s-%02x",
-            span_context.trace_id, span_context.span_id, span_context.trace_flags)
-    carrier:set(traceparent_header, traceparent)
+        span_context.trace_id, span_context.span_id, span_context.trace_flags)
+    setter.set(carrier, traceparent_header, traceparent)
     if span_context.trace_state then
-        carrier:set(tracestate_header, span_context.trace_state)
+        setter.set(carrier, tracestate_header, span_context.trace_state)
     end
 end
 
@@ -27,8 +52,8 @@ local function split(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={}
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         table.insert(t, str)
     end
     return t
@@ -58,7 +83,8 @@ local function validate_member_value(value)
     if #value > 256 then
         return nil
     end
-    return string.match(value, [[^([ !"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~]*[!"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~])%s*$]])
+    return string.match(value,
+        [[^([ !"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~]*[!"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~])%s*$]])
 end
 
 local function parse_trace_state(trace_state)
@@ -66,7 +92,7 @@ local function parse_trace_state(trace_state)
         return ""
     end
     if type(trace_state) == "string" then
-        trace_state = {trace_state}
+        trace_state = { trace_state }
     end
 
     local new_trace_state = {}
@@ -74,16 +100,16 @@ local function parse_trace_state(trace_state)
     for _, item in ipairs(trace_state) do
         for member in string.gmatch(item, "([^,]+)") do
             if member ~= "" then
-                local start_pos, end_pos = string.find (member, "=", 1, true)
+                local start_pos, end_pos = string.find(member, "=", 1, true)
                 if not start_pos or start_pos == 1 then
                     return ""
                 end
-                local key = validate_member_key(string.sub(member, 1, start_pos-1))
+                local key = validate_member_key(string.sub(member, 1, start_pos - 1))
                 if not key then
                     return ""
                 end
 
-                local value = validate_member_value(string.sub(member, end_pos+1))
+                local value = validate_member_value(string.sub(member, end_pos + 1))
                 if not value then
                     return ""
                 end
@@ -102,16 +128,16 @@ end
 
 local function validate_trace_id(trace_id)
     return type(trace_id) == "string" and #trace_id == 32 and trace_id ~= invalid_trace_id
-            and string.match(trace_id, "^[0-9a-f]+$")
+        and string.match(trace_id, "^[0-9a-f]+$")
 end
 
 local function validate_span_id(span_id)
     return type(span_id) == "string" and #span_id == 16 and span_id ~= invalid_span_id
-            and string.match(span_id, "^[0-9a-f]+$")
+        and string.match(span_id, "^[0-9a-f]+$")
 end
 
 local function trim(s)
-    return s:match'^%s*(.*%S)' or ''
+    return s:match '^%s*(.*%S)' or ''
 end
 
 -- Traceparent: 00-982d663bad6540dece76baf15dd2aa7f-6827812babd449d1-01
@@ -157,7 +183,6 @@ local function parse_trace_parent(trace_parent)
     return ret[2], ret[3], trace_flags
 end
 
-
 ------------------------------------------------------------------
 -- extract span context from upstream request.
 --
@@ -165,15 +190,20 @@ end
 -- @carrier             get traceparent and tracestate
 -- @return              new context
 ------------------------------------------------------------------
-function _M.extract(context, carrier)
-    local trace_id, span_id, trace_flags = parse_trace_parent(carrier:get(traceparent_header))
+function _M:extract(context, carrier, getter)
+    getter = getter or self.text_map_getter
+    local trace_id, span_id, trace_flags = parse_trace_parent(getter.get(carrier, traceparent_header))
     if not trace_id or not span_id or not trace_flags then
         return context:with_span_context(empty_span_context)
     end
 
-    local trace_state = parse_trace_state(carrier:get(tracestate_header))
+    local trace_state = parse_trace_state(getter.get(carrier, tracestate_header))
 
     return context:with_span_context(span_context_new(trace_id, span_id, trace_flags, trace_state, true))
+end
+
+function _M.fields()
+    return { "traceparent", "tracestate" }
 end
 
 return _M
