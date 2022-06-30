@@ -10,9 +10,9 @@ function _M.new()
 end
 
 ------------------------------------------------------------------
--- Add tracing information to nginx request as headers
+-- Extract tracing header from nginx request
 --
--- @param carrier nginx request
+-- @param carrier (should be ngx.req)
 -- @param key HTTP header to get
 -- @return value of HTTP header
 ------------------------------------------------------------------
