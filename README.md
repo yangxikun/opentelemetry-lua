@@ -273,8 +273,7 @@ Implement of specification: [https://www.w3.org/TR/trace-context/](https://www.w
 ```lua
 local context_storage = require("opentelemetry.context_storage")
 local context = require("opentelemetry.context").new(context_storage)
-local trace_context = require("opentelemetry.trace.propagation.trace_context")
-local carrier_new = require("opentelemetry.trace.propagation.carrier").new
+local trace_context_propagator = require("opentelemetry.trace.propagation.text_map.trace_context_propagator").new()
 
 ------------------------------------------------------------------
 -- extract span context from upstream request.
@@ -283,7 +282,7 @@ local carrier_new = require("opentelemetry.trace.propagation.carrier").new
 -- @carrier             get traceparent and tracestate
 -- @return              new context
 ------------------------------------------------------------------
-local context = trace_context.extract(context, carrier_new())
+local context = trace_context_propagator.extract(context, ngx.req)
 ```
 
 ### Span
