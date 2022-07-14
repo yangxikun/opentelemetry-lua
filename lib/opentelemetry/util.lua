@@ -6,13 +6,16 @@ local function ngx_time_nano()
 end
 
 local ffi = require("ffi")
+if not pcall(function() ffi.sizeof("timeval") end) then
+  ffi.cdef [[
+    typedef struct timeval {
+      long tv_sec;
+      long tv_usec;
+    } timeval;
+  ]]
+end
 
-ffi.cdef[[
-  typedef struct timeval {
-    long tv_sec;
-    long tv_usec;
-  } timeval;
-
+ffi.cdef [[
   int gettimeofday(struct timeval* t, void* tzp);
 ]]
 
