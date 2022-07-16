@@ -2,7 +2,7 @@ package = "opentelemetry-lua"
 version = "0.2-0"
 source = {
    url = "git://github.com/yangxikun/opentelemetry-lua",
-   tag = "v0.2-0"
+   tag = "v0.2.0"
 }
 
 description = {
@@ -13,7 +13,7 @@ description = {
 
 dependencies = {
     "lua-protobuf = 0.3.3",
-    "api7-lua-resty-http = 0.2.0",
+    "lua-resty-http = 0.16.1-0",
 }
 
 build = {
