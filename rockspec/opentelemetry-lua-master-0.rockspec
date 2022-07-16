@@ -13,7 +13,7 @@ description = {
 
 dependencies = {
     "lua-protobuf = 0.3.3",
-    "api7-lua-resty-http = 0.2.0",
+    "lua-resty-http = 0.16.1-0",
 }
 
 build = {

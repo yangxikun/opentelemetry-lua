@@ -1,7 +1,7 @@
 FROM openresty/openresty:1.19.9.1-centos7
 
 RUN yum install -y gcc
-RUN luarocks install api7-lua-resty-http 0.2.0
+RUN luarocks install lua-resty-http 0.16.1-0
 RUN luarocks install lua-protobuf 0.3.3
 RUN luarocks install busted 2.0.0-1
 
