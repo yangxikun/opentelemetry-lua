@@ -35,7 +35,13 @@ function _M.new(tracer, parent_ctx, ctx, name, config)
         attributes = config.attributes or {},
         events = {},
     }
-    return setmetatable(self, mt)
+    local span = setmetatable(self, mt)
+
+    for _, sp in tracer.provider.span_processors do
+        sp:on_start(span)
+    end
+
+    return span
 end
 
 function _M.context(self)

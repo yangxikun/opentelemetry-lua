@@ -120,6 +120,10 @@ function _M.new(exporter, opts)
     return setmetatable(self, mt)
 end
 
+-- No-op for this span processor.
+function _M.on_start(self, span)
+end
+
 function _M.on_end(self, span)
     if not span.ctx:is_sampled() or self.closed then
         return
