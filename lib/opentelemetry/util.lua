@@ -36,7 +36,7 @@ end
 _M.ngx_time_nano = ngx_time_nano
 _M.gettimeofday = ffi_gettimeofday
 
--- Return current time in milliseconds nanoseconds (there are 1000 nanoseconds
+-- Return current time in nanoseconds (there are 1000 nanoseconds
 -- in a microsecond)
 --
 -- @return current time in nanoseconds
