@@ -20,6 +20,7 @@ ffi.cdef [[
 ]]
 
 local gettimeofday_struct = ffi.new("timeval")
+
 --------------------------------------------------------------------------------
 -- Return current time in microseconds (via FFI call). This is the maximum
 -- precision available from Linux's gettimeofday() function
