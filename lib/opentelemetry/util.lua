@@ -35,8 +35,17 @@ end
 _M.ngx_time_nano = ngx_time_nano
 _M.gettimeofday = ffi_gettimeofday
 
+-- Return current time in milliseconds nanoseconds (there are 1000 nanoseconds
+-- in a microsecond)
+--
+-- @return current time in nanoseconds
+--------------------------------------------------------------------------------
+local function gettimeofday_ns()
+    return ffi_gettimeofday() * 1000
+end
+
 -- default time function, will be used in this SDK
 -- change it if needed
-_M.time_nano = ffi_gettimeofday
+_M.time_nano = gettimeofday_ns
 
 return _M
