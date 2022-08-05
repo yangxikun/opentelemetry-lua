@@ -1,4 +1,7 @@
 local _M = {
+    drop = 0,
+    record_only = 1,
+    record_and_sample = 2
 }
 
 local mt = {
@@ -18,11 +21,11 @@ function _M.new(decision, trace_state)
 end
 
 function _M.is_sampled(self)
-    return self.decision == 2
+    return self.decision == self.record_and_sample
 end
 
 function _M.is_recording(self)
-    return self.decision == 1 or self.decision == 2
+    return self.decision == self.record_only or self.decision == self.record_and_sample
 end
 
 return _M
