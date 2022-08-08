@@ -18,17 +18,17 @@ function _M.new(http_client, timeout_ms)
     return setmetatable(self, mt)
 end
 
-local function call_collector(self, pb_encoded_body)
+local function call_collector(exporter, pb_encoded_body)
     local start_time_ms = util.gettimeofday_ms()
     local failures = 0
 
     while failures < RETRY_LIMIT do
-        if util.gettimeofday_ms() - start_time_ms > self.timeout_ms then
-            ngx.log(ngx.WARN, "Collector retries timed out (timeout " .. self.timeout_ms .. ")")
+        if util.gettimeofday_ms() - start_time_ms > exporter.timeout_ms then
+            ngx.log(ngx.WARN, "Collector retries timed out (timeout " .. exporter.timeout_ms .. ")")
             break
         end
 
-        local res, _ = self.client:do_request(pb_encoded_body)
+        local res, _ = exporter.client:do_request(pb_encoded_body)
         if not res then
             failures = failures + 1
             if not _TEST then
@@ -91,7 +91,7 @@ function _M.export_spans(self, spans)
             status = span.status,
         })
     end
-    self:call_collector(pb.encode(body))
+    call_collector(self, pb.encode(body))
 end
 
 function _M.shutdown(self)
