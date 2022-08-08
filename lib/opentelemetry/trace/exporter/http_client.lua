@@ -46,7 +46,7 @@ function _M.do_request(self, body)
     if res.status ~= 200  then
         ngx.log(ngx.ERR, "request failed: ", res.body)
         httpc:close()
-        return nil, err
+        return nil, "request failed: " .. res.status
     end
 
     return res, nil
