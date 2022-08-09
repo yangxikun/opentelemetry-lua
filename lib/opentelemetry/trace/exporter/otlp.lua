@@ -96,8 +96,4 @@ function _M.shutdown(self)
 
 end
 
-if _TEST then
-    _M.call_collector = call_collector
-end
-
 return _M
