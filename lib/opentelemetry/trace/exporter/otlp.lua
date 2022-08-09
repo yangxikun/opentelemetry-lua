@@ -1,6 +1,6 @@
 local pb = require("opentelemetry.trace.exporter.pb")
 local util = require("opentelemetry.util")
-local RETRY_LIMIT = 5
+local RETRY_LIMIT = 3
 local DEFAULT_TIMEOUT_MS = 10000
 
 local _M = {
@@ -31,9 +31,7 @@ local function call_collector(exporter, pb_encoded_body)
         local res, _ = exporter.client:do_request(pb_encoded_body)
         if not res then
             failures = failures + 1
-            if not _TEST then
-                ngx.sleep(util.random_float(2 ^ failures))
-            end
+            ngx.sleep(util.random_float(2 ^ failures))
             ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
         else
             break
