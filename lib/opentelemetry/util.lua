@@ -1,5 +1,8 @@
 local _M = {}
 
+--- Set randomseed
+math.randomseed(ngx.time() + ngx.worker.pid())
+
 -- performance better, but may cause clock skew
 local function ngx_time_nano()
     return ngx.now() * 1000000000
@@ -33,9 +36,6 @@ local function ffi_gettimeofday()
             tonumber(gettimeofday_struct.tv_usec)
 end
 
-_M.ngx_time_nano = ngx_time_nano
-_M.gettimeofday = ffi_gettimeofday
-
 -- Return current time in nanoseconds (there are 1000 nanoseconds
 -- in a microsecond)
 --
@@ -44,6 +44,33 @@ _M.gettimeofday = ffi_gettimeofday
 local function gettimeofday_ns()
     return ffi_gettimeofday() * 1000
 end
+
+-- Return current time in milliseconds (there are 1000 milliseconds in a
+-- microsecond
+--
+-- @return current time in nanoseconds
+--------------------------------------------------------------------------------
+local function gettimeofday_ms()
+    return ffi_gettimeofday() / 1000
+end
+
+-- Localize math.random calls to this file so we don't have scattered
+-- math.randomseed calls.
+local function random(...)
+  return math.random(...)
+end
+
+-- Lua's math.random won't generate random floats within a given range, so we
+-- hack it together by subtracting math.random() from random integer.
+local function random_float(max)
+  return math.random(max) - math.random()
+end
+
+_M.ngx_time_nano = ngx_time_nano
+_M.gettimeofday = ffi_gettimeofday
+_M.gettimeofday_ms = gettimeofday_ms
+_M.random = random
+_M.random_float = random_float
 
 -- default time function, will be used in this SDK
 -- change it if needed

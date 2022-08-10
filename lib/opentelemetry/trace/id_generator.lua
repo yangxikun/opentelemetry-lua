@@ -1,16 +1,11 @@
+local util = require "opentelemetry.util"
 local bit = require 'bit'
 
 local tohex = bit.tohex
 local fmt = string.format
-local random = math.random
+local random = util.random
 
 local _M = {}
-
-if (os.getenv("OTEL_LUA_RANDOMSEED") == "ostime") then
-    math.randomseed(os.time(os.date("!*t")))
-else
-    math.randomseed(ngx.time() + ngx.worker.pid())
-end
 
 function _M.new_span_id()
     return fmt("%s%s%s%s%s%s%s%s",

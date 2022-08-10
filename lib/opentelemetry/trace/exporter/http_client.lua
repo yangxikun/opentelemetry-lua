@@ -40,14 +40,16 @@ function _M.do_request(self, body)
     if not res then
         ngx.log(ngx.ERR, "request failed: ", err)
         httpc:close()
-        return
+        return nil, err
     end
 
     if res.status ~= 200  then
         ngx.log(ngx.ERR, "request failed: ", res.body)
         httpc:close()
-        return
+        return nil, "request failed: " .. res.status
     end
+
+    return res, nil
 end
 
 return _M
