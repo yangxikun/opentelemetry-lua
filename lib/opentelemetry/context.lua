@@ -64,7 +64,7 @@ end
 -- @return            boolean, string
 --------------------------------------------------------------------------------
 function _M.current()
-    return otel_global.context_storage[context_key][#otel_global.context_storage[context_key]]
+    return otel_global.context_storage[context_key] and otel_global.context_storage[context_key][#otel_global.context_storage[context_key]]
 end
 
 --------------------------------------------------------------------------------
