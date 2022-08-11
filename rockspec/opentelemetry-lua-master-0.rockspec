@@ -21,7 +21,6 @@ build = {
    modules = {
        ["opentelemetry.global"] = "lib/opentelemetry/global.lua",
        ["opentelemetry.context"] = "lib/opentelemetry/context.lua",
-       ["opentelemetry.context_storage"] = "lib/opentelemetry/context_storage.lua",
        ["opentelemetry.attribute"] = "lib/opentelemetry/attribute.lua",
        ["opentelemetry.instrumentation_library"] = "lib/opentelemetry/instrumentation_library.lua",
        ["opentelemetry.resource"] = "lib/opentelemetry/resource.lua",

@@ -1,5 +1,7 @@
+local otel_global = require("opentelemetry.global")
 local non_recording_span_new = require("opentelemetry.trace.non_recording_span").new
 local noop_span = require("opentelemetry.trace.noop_span")
+local util = require("opentelemetry.util")
 
 local _M = {
 }
@@ -8,31 +10,88 @@ local mt = {
     __index = _M
 }
 
-local key = "opentelemetry-context"
+local context_key = "__opentelemetry_context__"
 
-function _M.new(storage)
-    return setmetatable({storage = storage, sp = noop_span, is_attached = false}, mt)
+
+--------------------------------------------------------------------------------
+-- Create new context with set of entries
+--
+-- @return              context
+--------------------------------------------------------------------------------
+function _M.new(entries)
+    return setmetatable({ sp = noop_span, entries = entries or {} }, mt)
 end
 
+--------------------------------------------------------------------------------
+-- Set this context as current by pushing it on stack stored at context_key.
+--
+-- @return              token to be used for detaching
+--------------------------------------------------------------------------------
 function _M.attach(self)
-    self.prev = self:current()
-    self.storage:set(key, self)
-    self.is_attached = true
+    if otel_global.context_storage[context_key] then
+        table.insert(otel_global.context_storage[context_key], self)
+    else
+        otel_global.context_storage[context_key] = { self }
+    end
+
+    -- the length of the stack is token used to detach context
+    return #otel_global.context_storage[context_key]
 end
 
-function _M.detach(self)
-    if self.is_attached then
-        self.storage:set(key, self.prev)
-        self.is_attached = false
+--------------------------------------------------------------------------------
+-- Detach current context, setting current context to previous element in stack
+-- If token does not match length of elements in stack, returns false and error
+-- string.
+--
+-- @return            boolean, string
+--------------------------------------------------------------------------------
+function _M.detach(self, token)
+    if #otel_global.context_storage[context_key] == token then
+        table.remove(otel_global.context_storage[context_key])
+        return true, nil
+    else
+        local error_message = "Token does not match (" ..
+            #otel_global.context_storage[context_key] .. " context entries in stack, token provided was " .. token .. ")."
+        ngx.log(ngx.WARN, error_message)
+        return false, error_message
     end
 end
 
-function _M.current(self)
-    return self.storage:get(key)
+--------------------------------------------------------------------------------
+-- Get current context, which is the final element in stack stored at
+-- context_key.
+--
+-- @return            boolean, string
+--------------------------------------------------------------------------------
+function _M.current()
+    return otel_global.context_storage[context_key][#otel_global.context_storage[context_key]]
+end
+
+--------------------------------------------------------------------------------
+-- Retrieve value for key in context.
+--
+-- @key                 key for which to set the value in context
+-- @return              value stored at key
+--------------------------------------------------------------------------------
+function _M.get(self, key)
+    return self.entries[key]
+end
+
+--------------------------------------------------------------------------------
+-- Set value for key in context. This returns a new context object.
+--
+-- @key                 key for which to set the value in context
+-- @value               value to set
+-- @return              context
+--------------------------------------------------------------------------------
+function _M.set(self, key, value)
+    local vals = util.shallow_copy_table(self.entries)
+    vals[key] = value
+    return self.new(vals)
 end
 
 function _M.with_span(self, span)
-    return setmetatable({storage = self.storage, sp = span, is_attached = false}, mt)
+    return setmetatable({ sp = span, is_attached = false }, mt)
 end
 
 function _M.with_span_context(self, span_context)

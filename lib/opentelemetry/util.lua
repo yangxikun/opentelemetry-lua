@@ -66,11 +66,20 @@ local function random_float(max)
   return math.random(max) - math.random()
 end
 
+local function shallow_copy_table(t)
+  local t2 = {}
+  for k, v in pairs(t) do
+    t2[k] = v
+  end
+  return t2
+end
+
 _M.ngx_time_nano = ngx_time_nano
 _M.gettimeofday = ffi_gettimeofday
 _M.gettimeofday_ms = gettimeofday_ms
 _M.random = random
 _M.random_float = random_float
+_M.shallow_copy_table = shallow_copy_table
 
 -- default time function, will be used in this SDK
 -- change it if needed

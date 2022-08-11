@@ -56,24 +56,23 @@ Partially implement of specification: [https://github.com/open-telemetry/opentel
 ### Create a Context
 
 ```lua
-local context_storage = require("opentelemetry.context_storage")
 -- context_storage is a centralized storage in request scope, so you can get current Context in different request phase.
-local context = require("opentelemetry.context").new(context_storage)
+local context = require("opentelemetry.context").new()
 ```
 
 ### Attach/Detach Context
 
 ```lua
--- Associates a Context with the caller's current execution unit, so you can use context:current() to retrieve it.
-context:attach()
--- Resets the Context associated with the caller's current execution unit to the value it had before attaching a specified Context.
-context:detach()
+-- Associates a Context with the caller's current execution unit, so you can use context:current() to retrieve it. Returns a token you can use to detach.
+local token = context:attach()
+-- Resets the Context associated with the caller's current execution unit to the value it had before attaching a specified Context. Pass the token returned when attaching context.
+context:detach(token)
 ```
 
 ### Get current Context
 
 ```lua
-local cur_context = context:current()
+local cur_context = context.current()
 ```
 
 ### Get current span/span_context
@@ -271,8 +270,7 @@ local context, span = tracer:start(context, name, {kind = span_kind.server, attr
 Implement of specification: [https://www.w3.org/TR/trace-context/](https://www.w3.org/TR/trace-context/)
 
 ```lua
-local context_storage = require("opentelemetry.context_storage")
-local context = require("opentelemetry.context").new(context_storage)
+local context = require("opentelemetry.context").new()
 local trace_context_propagator = require("opentelemetry.trace.propagation.text_map.trace_context_propagator").new()
 
 ------------------------------------------------------------------
