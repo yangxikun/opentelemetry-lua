@@ -1,6 +1,5 @@
 local context = require("opentelemetry.context")
 local otel_global = require("opentelemetry.global")
--- local baggage = require("opentelemetry.baggage")
 
 describe("get and set", function()
     it("stores and retrieves values at given key", function()
