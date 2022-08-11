@@ -56,7 +56,7 @@ Partially implement of specification: [https://github.com/open-telemetry/opentel
 ### Create a Context
 
 ```lua
--- context_storage is a centralized storage in request scope, so you can get current Context in different request phase.
+-- context is stored on ngx.ctx by default, so context is passed between different request phases.
 local context = require("opentelemetry.context").new()
 ```
 
@@ -258,7 +258,7 @@ local attr = require("opentelemetry.attribute")
 -- @span_start_config   [optional]
 --                          span_start_config.kind: opentelemetry.trace.span_kind.*
 --                          span_start_config.attributes: a list of attribute
--- @return              
+-- @return
 --                      context: new context with span
 --                      span
 ------------------------------------------------------------------
