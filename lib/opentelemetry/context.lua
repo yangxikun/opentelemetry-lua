@@ -11,7 +11,7 @@ local mt = {
 }
 
 local context_key = "__opentelemetry_context__"
-
+local baggage_context_key = "__opentelemetry_baggage__"
 
 --------------------------------------------------------------------------------
 -- Create new context with set of entries
@@ -90,6 +90,25 @@ function _M.set(self, key, value)
     local vals = util.shallow_copy_table(self.entries)
     vals[key] = value
     return self.new(vals, self.sp)
+end
+
+--------------------------------------------------------------------------------
+-- Inject baggage into current context
+--
+-- @baggage             baggage instance to inject
+-- @return              context
+--------------------------------------------------------------------------------
+function _M.inject_baggage(self, baggage)
+    return self:set(baggage_context_key, baggage)
+end
+
+--------------------------------------------------------------------------------
+-- Extract baggage from context
+--
+-- @return              baggage
+--------------------------------------------------------------------------------
+function _M.extract_baggage(self)
+    return self:get(baggage_context_key)
 end
 
 function _M.with_span(self, span)
