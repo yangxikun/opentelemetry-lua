@@ -16,8 +16,4 @@ function _M.set_context_storage(context_storage)
     _M.context_storage = context_storage
 end
 
-function _M.context_storage()
-    return _M.context_storage
-end
-
 return _M
