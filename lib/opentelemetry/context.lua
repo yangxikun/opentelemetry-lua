@@ -18,8 +18,8 @@ local context_key = "__opentelemetry_context__"
 --
 -- @return              context
 --------------------------------------------------------------------------------
-function _M.new(entries)
-    return setmetatable({ sp = noop_span, entries = entries or {} }, mt)
+function _M.new(entries, span)
+    return setmetatable({ sp = span or noop_span, entries = entries or {} }, mt)
 end
 
 --------------------------------------------------------------------------------
@@ -51,7 +51,8 @@ function _M.detach(self, token)
         return true, nil
     else
         local error_message = "Token does not match (" ..
-            #otel_global.context_storage[context_key] .. " context entries in stack, token provided was " .. token .. ")."
+            #otel_global.context_storage[context_key] ..
+            " context entries in stack, token provided was " .. token .. ")."
         ngx.log(ngx.WARN, error_message)
         return false, error_message
     end
@@ -64,7 +65,8 @@ end
 -- @return            boolean, string
 --------------------------------------------------------------------------------
 function _M.current()
-    return otel_global.context_storage[context_key] and otel_global.context_storage[context_key][#otel_global.context_storage[context_key]]
+    return otel_global.context_storage[context_key] and
+        otel_global.context_storage[context_key][#otel_global.context_storage[context_key]]
 end
 
 --------------------------------------------------------------------------------
@@ -87,11 +89,11 @@ end
 function _M.set(self, key, value)
     local vals = util.shallow_copy_table(self.entries)
     vals[key] = value
-    return self.new(vals)
+    return self.new(vals, self.sp)
 end
 
 function _M.with_span(self, span)
-    return setmetatable({ sp = span, is_attached = false }, mt)
+    return self.new({}, span)
 end
 
 function _M.with_span_context(self, span_context)
