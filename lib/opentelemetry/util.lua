@@ -74,12 +74,48 @@ local function shallow_copy_table(t)
   return t2
 end
 
+local function hex_to_char(hex)
+  return string.char(tonumber(hex, 16))
+end
+
+local function char_to_hex(c)
+  return string.format("%%%02X", string.byte(c))
+end
+
+-- Baggage headers values can be percent encoded. We need to unescape them. The
+-- regex is a bit weird-looking, so here's the relevant section on patterns in
+-- the Lua manual (https://www.lua.org/manual/5.2/manual.html#6.4.1)
+local function decode_percent_encoded_string(str)
+  return str:gsub("%%(%x%x)", hex_to_char)
+end
+
+--------------------------------------------------------------------------------
+-- Percent encode a baggage string. It's not generic for all percent encoding,
+-- since we don't want to percent-encode equals signs, semicolons, or commas in
+-- baggage strings.
+--
+-- @str                 string to be sent as baggage list item
+-- @return              new context with baggage associated
+--------------------------------------------------------------------------------
+-- adapted from https://gist.github.com/liukun/f9ce7d6d14fa45fe9b924a3eed5c3d99
+local function percent_encode_baggage_string(str)
+  if str == nil then
+    return
+  end
+  str = str:gsub("\n", "\r\n")
+  str = str:gsub("([^%w ,;=_%%%-%.~])", char_to_hex)
+  str = str:gsub(" ", "+")
+  return str
+end
+
 _M.ngx_time_nano = ngx_time_nano
 _M.gettimeofday = ffi_gettimeofday
 _M.gettimeofday_ms = gettimeofday_ms
 _M.random = random
 _M.random_float = random_float
 _M.shallow_copy_table = shallow_copy_table
+_M.decode_percent_encoded_string = decode_percent_encoded_string
+_M.percent_encode_baggage_string = percent_encode_baggage_string
 
 -- default time function, will be used in this SDK
 -- change it if needed

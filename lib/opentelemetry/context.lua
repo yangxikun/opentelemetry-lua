@@ -1,3 +1,4 @@
+local baggage = require("opentelemetry.baggage")
 local otel_global = require("opentelemetry.global")
 local non_recording_span_new = require("opentelemetry.trace.non_recording_span").new
 local noop_span = require("opentelemetry.trace.noop_span")
@@ -108,7 +109,7 @@ end
 -- @return              baggage
 --------------------------------------------------------------------------------
 function _M.extract_baggage(self)
-    return self:get(baggage_context_key)
+    return self:get(baggage_context_key) or baggage.new({})
 end
 
 function _M.with_span(self, span)

@@ -1,4 +1,3 @@
-local context = require("opentelemetry.context")
 local util = require("opentelemetry.util")
 
 local _M = {
@@ -7,8 +6,6 @@ local _M = {
 local mt = {
     __index = _M
 }
-
-local BAGGAGE_KEY = "opentelemetry-baggage"
 
 function _M.new(values)
     return setmetatable({ values = values or {} }, mt)
@@ -42,9 +39,8 @@ function _M.get_value(self, name)
     end
 end
 
-
 --------------------------------------------------------------------------------
--- Remove value stored at a specific name in a baggage instance
+-- Remove value stored at a specific name in a baggage instance.
 --
 -- @name                name to remove from baggage
 -- @return              baggage
@@ -55,21 +51,17 @@ function _M.remove_value(self, name)
     return self.new(new_values)
 end
 
-
 --------------------------------------------------------------------------------
--- Get all values in a baggage instance
+-- Get all values in a baggage instance. This is supposed to return an immutable
+-- collection, but we just return a copy of the table stored at values.
 --
--- @context             context from which to access the baggage (defaults to current context)
--- @return              table like { keyname = { value = "value", metadata = "metadatastring"} }
+-- @context             context from which to access the baggage (defaults to
+--                      current context)
+-- @return              table like { keyname = { value = "value",
+--                                               metadata = "metadatastring"} }
 --------------------------------------------------------------------------------
 function _M.get_all_values(self)
-    return self.values
-end
-
-local function baggage_for(ctx)
-    ctx = ctx or context:current()
-    local vals = ctx:get(BAGGAGE_KEY)
-    _M.new(vals)
+    return util.shallow_copy_table(self.values)
 end
 
 return _M

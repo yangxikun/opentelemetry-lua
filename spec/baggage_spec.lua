@@ -15,9 +15,9 @@ describe("set_value and get_value", function()
     end)
 end)
 
-describe("get_values", function()
+describe("get__all_values", function()
     it("returns all values", function()
-        local values = { key1 = { value = "wat" }, key2 = { value = "wat2" } }
+        local values = { key1 = { value = "wat", metadata = "ignore" }, key2 = { value = "wat2", metadata } }
         local baggage = baggage.new(values)
         assert.are.same(baggage:get_all_values(), values)
     end)
