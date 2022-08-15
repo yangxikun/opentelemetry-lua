@@ -15,7 +15,7 @@ openresty-unit-test:
 	$(CONTAINER_ORCHESTRATOR) exec $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'cd /opt/opentelemetry-lua && prove -r'
 
 lua-unit-test:
-	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty-test bash -c 'cd /opt/opentelemetry-lua && ./busted-runner'
+	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty-test  bash -c 'cd /opt/opentelemetry-lua && ./busted-runner'
 
 openresty-build:
 	$(CONTAINER_ORCHESTRATOR) build
