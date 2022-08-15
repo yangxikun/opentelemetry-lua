@@ -63,7 +63,7 @@ local context = require("opentelemetry.context").new()
 ### Attach/Detach Context
 
 ```lua
--- Associates a Context with the caller's current execution unit, so you can use context:current() to retrieve it. Returns a token you can use to detach.
+-- Associates a Context with the caller's current execution unit, so you can use context.current() to retrieve it. Returns a token you can use to detach.
 local token = context:attach()
 -- Resets the Context associated with the caller's current execution unit to the value it had before attaching a specified Context. Pass the token returned when attaching context.
 context:detach(token)

@@ -31,25 +31,25 @@ location = /t {
         local tracer_provider = require("opentelemetry.trace.tracer_provider").new()
         local tracer = tracer_provider:tracer("unit_test")
         local context, recording_span = tracer:start(context, "recording")
-        if context:current() ~= nil then
-            ngx.say("unexpected context:current()")
+        if context.current() ~= nil then
+            ngx.say("unexpected context.current()")
         end
         context:attach()
-        if context:current():span().name ~= "recording" then
-            ngx.say("unexpected context:current():span()")
+        if context.current():span().name ~= "recording" then
+            ngx.say("unexpected context.current():span()")
         end
         context, recording_span = tracer:start(context, "recording2")
         context:attach()
-        if context:current():span().name ~= "recording2" then
-            ngx.say("unexpected context:current():span()")
+        if context.current():span().name ~= "recording2" then
+            ngx.say("unexpected context.current():span()")
         end
         context:detach(2)
-        if context:current():span().name ~= "recording" then
-            ngx.say("unexpected context:current():span()")
+        if context.current():span().name ~= "recording" then
+            ngx.say("unexpected context.current():span()")
         end
-        context:current():detach(1)
-        if context:current() ~= nil then
-            ngx.say("unexpected context:current()")
+        context.current():detach(1)
+        if context.current() ~= nil then
+            ngx.say("unexpected context.current()")
         end
         ngx.say("done")
     }
