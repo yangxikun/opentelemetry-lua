@@ -3,6 +3,7 @@
 package.path = './lib/?.lua;./lib/?/?.lua;./lib/?/init.lua' .. package.path
 
 _TEST = true
+_RUN_SLOW_TESTS = os.getenv("RUN_SLOW_TESTS") or false
 
 -- Set up global tracer
 Global = require("opentelemetry.global")

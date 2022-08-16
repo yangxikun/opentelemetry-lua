@@ -4,12 +4,6 @@ local text_map_propagator = require "opentelemetry.trace.propagation.text_map.tr
 local noop_propagator = require "opentelemetry.trace.propagation.text_map.noop_propagator"
 local context = require("opentelemetry.context")
 
---We use ngx.ctx to store context, but don't want to instantiate everything here
-local context_storage = {
-    function() get(self, key) return "getvalue" end,
-    function() set(self, key, val) return nil end
-}
-
 -- We're setting these on ngx.req but we aren't running openresty in these
 -- tests, so we'll mock that out (ngx.req supports get_headers() and set_header(header_name))
 local function newCarrier(header, header_return)
@@ -27,7 +21,7 @@ describe("composite propagator", function()
         local tmp             = text_map_propagator.new()
         local np              = noop_propagator.new()
         local cp              = composite_propagator.new({ tmp, np })
-        local ctx             = context.new(context_storage)
+        local ctx             = context.new()
         local tracer_provider = tracer_provider.new()
         local tracer          = tracer_provider:tracer("test tracer")
 
@@ -59,7 +53,7 @@ describe("composite propagator", function()
             local trace_id = "10f5b3bcfe3f0c2c5e1ef150fe0b5872"
             local carrier  = newCarrier("traceparent",
                 string.format("00-%s-172accbce5f048db-01", trace_id))
-            local ctx      = context.new(context_storage)
+            local ctx      = context.new()
             local new_ctx  = cp:extract(ctx, carrier)
             assert.are.same(new_ctx.sp:context().trace_id, trace_id)
         end)

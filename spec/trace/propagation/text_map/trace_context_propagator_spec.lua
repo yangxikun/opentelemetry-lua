@@ -2,13 +2,6 @@ local text_map_propagator = require "opentelemetry.trace.propagation.text_map.tr
 local tracer_provider = require "opentelemetry.trace.tracer_provider"
 local context = require("opentelemetry.context")
 
--- We use ngx.ctx to store context, but we aren't running openresty in these
--- tests, so we'll just mock out context storage
-local context_storage = {
-    function() get(self, key) return nil end,
-    function() set(self, key, val) return nil end
-}
-
 -- We're setting these on ngx.req but we aren't running openresty in these
 -- tests, so we'll mock that out (ngx.req supports get_headers() and set_header(header_name))
 local function newCarrier(header, header_return)
@@ -30,7 +23,7 @@ describe("text map propagator", function()
     describe(":inject", function()
         it("adds traceparent headers to carrier", function()
             local tmp             = text_map_propagator.new()
-            local context         = context.new(context_storage)
+            local context         = context.new()
             local carrier         = newCarrier("ok", "alright")
             local tracer_provider = tracer_provider.new()
             local tracer          = tracer_provider:tracer("test tracer")
@@ -52,7 +45,7 @@ describe("text map propagator", function()
     describe(":extract", function()
         it("sets context when traceparent is valid", function()
             local tmp             = text_map_propagator.new()
-            local context         = context.new(context_storage)
+            local context         = context.new()
             local trace_id        = "10f5b3bcfe3f0c2c5e1ef150fe0b5872"
             local carrier         = newCarrier("traceparent", string.format("00-%s-172accbce5f048db-01", trace_id))
 

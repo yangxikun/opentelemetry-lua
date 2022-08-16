@@ -12,9 +12,8 @@ __DATA__
 --- config
 location = /t {
     content_by_lua_block {
-        local context_storage = require("opentelemetry.context_storage")
         local span_context_new = require("opentelemetry.trace.span_context").new
-        local context = require("opentelemetry.context").new(context_storage)
+        local context = require("opentelemetry.context").new()
 
         ngx.say("text context:with_span_context")
         context = context:with_span_context(span_context_new("trace_id", "span_id", 1, "trace_state", false))
@@ -32,25 +31,25 @@ location = /t {
         local tracer_provider = require("opentelemetry.trace.tracer_provider").new()
         local tracer = tracer_provider:tracer("unit_test")
         local context, recording_span = tracer:start(context, "recording")
-        if context:current() ~= nil then
-            ngx.say("unexpected context:current()")
+        if context.current() ~= nil then
+            ngx.say("unexpected context.current()")
         end
         context:attach()
-        if context:current():span().name ~= "recording" then
-            ngx.say("unexpected context:current():span()")
+        if context.current():span().name ~= "recording" then
+            ngx.say("unexpected context.current():span()")
         end
         context, recording_span = tracer:start(context, "recording2")
         context:attach()
-        if context:current():span().name ~= "recording2" then
-            ngx.say("unexpected context:current():span()")
+        if context.current():span().name ~= "recording2" then
+            ngx.say("unexpected context.current():span()")
         end
-        context:detach()
-        if context:current():span().name ~= "recording" then
-            ngx.say("unexpected context:current():span()")
+        context:detach(2)
+        if context.current():span().name ~= "recording" then
+            ngx.say("unexpected context.current():span()")
         end
-        context:current():detach()
-        if context:current() ~= nil then
-            ngx.say("unexpected context:current()")
+        context.current():detach(1)
+        if context.current() ~= nil then
+            ngx.say("unexpected context.current()")
         end
         ngx.say("done")
     }
