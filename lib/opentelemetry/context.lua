@@ -66,8 +66,11 @@ end
 -- @return            boolean, string
 --------------------------------------------------------------------------------
 function _M.current()
-    return otel_global.get_context_storage()[context_key] and
-        otel_global.get_context_storage()[context_key][#otel_global.get_context_storage()[context_key]]
+    if otel_global.get_context_storage()[context_key] then
+        return otel_global.get_context_storage()[context_key][#otel_global.get_context_storage()[context_key]]
+    else
+        return _M.new()
+    end
 end
 
 --------------------------------------------------------------------------------
