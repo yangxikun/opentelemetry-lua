@@ -31,7 +31,7 @@ location = /t {
         local tracer_provider = require("opentelemetry.trace.tracer_provider").new()
         local tracer = tracer_provider:tracer("unit_test")
         local context, recording_span = tracer:start(context, "recording")
-        if context.current() ~= nil then
+        if context.current().sp ~= nil then
             ngx.say("unexpected context.current()")
         end
         context:attach()
