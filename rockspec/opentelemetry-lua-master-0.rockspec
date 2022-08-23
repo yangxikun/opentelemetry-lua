@@ -24,6 +24,7 @@ build = {
        ["opentelemetry.attribute"] = "lib/opentelemetry/attribute.lua",
        ["opentelemetry.instrumentation_library"] = "lib/opentelemetry/instrumentation_library.lua",
        ["opentelemetry.resource"] = "lib/opentelemetry/resource.lua",
+       ["opentelemetry.metrics_reporter"] = "lib/opentelemetry/metrics_reporter.lua",
        ["opentelemetry.trace.batch_span_processor"] = "lib/opentelemetry/trace/batch_span_processor.lua",
        ["opentelemetry.trace.event"] = "lib/opentelemetry/trace/event.lua",
        ["opentelemetry.trace.exporter.http_client"] = "lib/opentelemetry/trace/exporter/http_client.lua",
