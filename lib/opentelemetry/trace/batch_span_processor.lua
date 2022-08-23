@@ -42,7 +42,7 @@ local function process_batches(premature, self, batches)
     otel_global.metrics_reporter:observe_value(buffer_utilization_metric, #self.queue / self.max_queue_size)
 
     for _, batch in ipairs(batches) do
-        otel_global.metrics_reporter:record_value(batch_size_metric, #batch, {})
+        otel_global.metrics_reporter:record_value(batch_size_metric, #batch)
         local success, err = self.exporter:export_spans(batch)
         report_result(success, err, #batch)
     end
