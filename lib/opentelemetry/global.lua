@@ -1,5 +1,6 @@
 local metrics_reporter = require("opentelemetry.metrics_reporter")
-_M = { context_storage = nil, metrics_reporter = metrics_reporter }
+
+local _M = { context_storage = nil, metrics_reporter = metrics_reporter }
 
 function _M.set_tracer_provider(tp)
     _M.tracer_provider = tp
