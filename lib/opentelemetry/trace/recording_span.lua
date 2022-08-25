@@ -144,10 +144,10 @@ local function hex2bytes(str)
     end))
 end
 
-function _M.for_otlp_export(self)
+function _M.for_export(self)
     return {
-        trace_id = hex2bytes(self.ctx.trace_id),
-        span_id = hex2bytes(self.ctx.span_id),
+        trace_id = self.ctx.trace_id,
+        span_id = self.ctx.span_id,
         trace_state = "",
         parent_span_id = self.parent_ctx.span_id and hex2bytes(self.parent_ctx.span_id) or "",
         name = self.name,
@@ -162,6 +162,20 @@ function _M.for_otlp_export(self)
         dropped_links_count = 0,
         status = self.status
     }
+end
+
+function _M.for_otlp_export(self)
+    local ret = self:for_export()
+    ret.trace_id = hex2bytes(ret.trace_id)
+    ret.span_id = hex2bytes(ret.span_id)
+    return ret
+end
+
+function _M.for_console_export(self)
+    local ret = "\n---------------------------------------------------------\n"
+    ret = ret .. util.table_as_string(self:for_export(), 2)
+    ret = ret .. "---------------------------------------------------------\n"
+    return ret
 end
 
 function _M.plain(self)
