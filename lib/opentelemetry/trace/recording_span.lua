@@ -144,7 +144,7 @@ local function hex2bytes(str)
     end))
 end
 
-function _M.as_export_data(self)
+function _M.for_otlp_export(self)
     return {
         trace_id = hex2bytes(self.ctx.trace_id),
         span_id = hex2bytes(self.ctx.span_id),

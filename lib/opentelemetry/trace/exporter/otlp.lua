@@ -64,7 +64,7 @@ function _M.export_spans(self, spans)
     for _, span in ipairs(spans) do
         table.insert(
             body.resource_spans[1].instrumentation_library_spans[1].spans,
-            span:as_export_data())
+            span:for_otlp_export())
     end
     call_collector(self, pb.encode(body))
 end
