@@ -29,14 +29,14 @@ end
 -- @return              token to be used for detaching
 --------------------------------------------------------------------------------
 function _M.attach(self)
-    if otel_global.context_storage[context_key] then
-        table.insert(otel_global.context_storage[context_key], self)
+    if otel_global.get_context_storage()[context_key] then
+        table.insert(otel_global.get_context_storage()[context_key], self)
     else
-        otel_global.context_storage[context_key] = { self }
+        otel_global.get_context_storage()[context_key] = { self }
     end
 
     -- the length of the stack is token used to detach context
-    return #otel_global.context_storage[context_key]
+    return #otel_global.get_context_storage()[context_key]
 end
 
 --------------------------------------------------------------------------------
@@ -47,12 +47,12 @@ end
 -- @return            boolean, string
 --------------------------------------------------------------------------------
 function _M.detach(self, token)
-    if #otel_global.context_storage[context_key] == token then
-        table.remove(otel_global.context_storage[context_key])
+    if #otel_global.get_context_storage()[context_key] == token then
+        table.remove(otel_global.get_context_storage()[context_key])
         return true, nil
     else
         local error_message = "Token does not match (" ..
-            #otel_global.context_storage[context_key] ..
+            #otel_global.get_context_storage()[context_key] ..
             " context entries in stack, token provided was " .. token .. ")."
         ngx.log(ngx.WARN, error_message)
         return false, error_message
@@ -66,8 +66,11 @@ end
 -- @return            boolean, string
 --------------------------------------------------------------------------------
 function _M.current()
-    return otel_global.context_storage[context_key] and
-        otel_global.context_storage[context_key][#otel_global.context_storage[context_key]]
+    if otel_global.get_context_storage()[context_key] then
+        return otel_global.get_context_storage()[context_key][#otel_global.get_context_storage()[context_key]]
+    else
+        return _M.new()
+    end
 end
 
 --------------------------------------------------------------------------------
