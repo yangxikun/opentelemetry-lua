@@ -149,7 +149,7 @@ function _M.for_export(self)
         trace_id = self.ctx.trace_id,
         span_id = self.ctx.span_id,
         trace_state = "",
-        parent_span_id = self.parent_ctx.span_id and hex2bytes(self.parent_ctx.span_id) or "",
+        parent_span_id = self.parent_ctx.span_id or "",
         name = self.name,
         kind = self.kind,
         start_time_unix_nano = string.format("%d", self.start_time),
@@ -168,6 +168,7 @@ function _M.for_otlp_export(self)
     local ret = self:for_export()
     ret.trace_id = hex2bytes(ret.trace_id)
     ret.span_id = hex2bytes(ret.span_id)
+    ret.parent_span_id = hex2bytes(ret.parent_span_id)
     return ret
 end
 
