@@ -74,7 +74,7 @@ function _M.set_attributes(self, ...)
         return
     end
 
-    for _, attr in ipairs({...}) do
+    for _, attr in ipairs({ ... }) do
         table.insert(self.attributes, attr)
     end
 end
@@ -104,7 +104,7 @@ function _M.record_error(self, error)
     end
 
     table.insert(self.events, event_new("exception", {
-        attributes = {attribute.string("exception.message", error)},
+        attributes = { attribute.string("exception.message", error) },
     }))
 end
 
@@ -135,9 +135,38 @@ function _M.tracer_provider(self)
     return self.tracer.provider
 end
 
+local function hex2bytes(str)
+    return (str:gsub('..', function(cc)
+        local n = tonumber(cc, 16)
+        if n then
+            return string.char(n)
+        end
+    end))
+end
+
+function _M.as_export_data(self)
+    return {
+        trace_id = hex2bytes(self.ctx.trace_id),
+        span_id = hex2bytes(self.ctx.span_id),
+        trace_state = "",
+        parent_span_id = self.parent_ctx.span_id and hex2bytes(self.parent_ctx.span_id) or "",
+        name = self.name,
+        kind = self.kind,
+        start_time_unix_nano = string.format("%d", self.start_time),
+        end_time_unix_nano = string.format("%d", self.end_time),
+        attributes = self.attributes,
+        dropped_attributes_count = 0,
+        events = self.events,
+        dropped_events_count = 0,
+        links = {},
+        dropped_links_count = 0,
+        status = self.status
+    }
+end
+
 function _M.plain(self)
     return {
-        tracer = {il = self.tracer.il},
+        tracer = { il = self.tracer.il },
         parent_ctx = self.parent_ctx:plain(),
         ctx = self.ctx:plain(),
         name = self.name,
