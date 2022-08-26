@@ -27,7 +27,6 @@ build = {
        ["opentelemetry.metrics_reporter"] = "lib/opentelemetry/metrics_reporter.lua",
        ["opentelemetry.trace.batch_span_processor"] = "lib/opentelemetry/trace/batch_span_processor.lua",
        ["opentelemetry.trace.event"] = "lib/opentelemetry/trace/event.lua",
-       ["opentelemetry.trace.exporter.console_span_exporter"] = "lib/opentelemetry/trace/exporter/console_span_exporter.lua",
        ["opentelemetry.trace.exporter.http_client"] = "lib/opentelemetry/trace/exporter/http_client.lua",
        ["opentelemetry.trace.exporter.openresty_batch_span_processor"] = "lib/opentelemetry/trace/exporter/openresty_batch_span_processor.lua",
        ["opentelemetry.trace.exporter.otlp"] = "lib/opentelemetry/trace/exporter/otlp.lua",
