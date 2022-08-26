@@ -1,4 +1,5 @@
 local http = require("resty.http")
+local otel_global = require("opentelemetry.global")
 
 local _M = {
 }
@@ -7,21 +8,23 @@ local mt = {
     __index = _M
 }
 
-------------------------------------------------------------------
--- create a http client used by exporter.
+--------------------------------------------------------------------------------
+-- Create a http client used by exporter. Values default to settings in
+-- opentelemetry.global.
 --
 -- @address             opentelemetry collector: host:port
 -- @timeout             export request timeout second
 -- @headers             export request headers
 -- @return              http client
-------------------------------------------------------------------
+--------------------------------------------------------------------------------
 function _M.new(address, timeout, headers)
-    headers = headers or {}
+    headers = headers or otel_global.settings.otel_exporter.otlp.headers
     headers["Content-Type"] = "application/x-protobuf"
 
     local self = {
-        uri = "http://" .. address .. "/v1/traces",
-        timeout = timeout,
+        uri = address and "http://" .. address .. "/v1/traces" or
+            otel_global.settings.otel_exporter.otlp.endpoint,
+        timeout = timeout or otel_global.settings.otel_exporter.otlp.timeout,
         headers = headers,
     }
     return setmetatable(self, mt)
@@ -43,7 +46,7 @@ function _M.do_request(self, body)
         return nil, err
     end
 
-    if res.status ~= 200  then
+    if res.status ~= 200 then
         ngx.log(ngx.ERR, "request failed: ", res.body)
         httpc:close()
         return nil, "request failed: " .. res.status
