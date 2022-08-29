@@ -4,7 +4,6 @@ local util = require("opentelemetry.util")
 local RETRY_LIMIT = 3
 local DEFAULT_TIMEOUT_MS = 10000
 
-
 local _M = {
 }
 
