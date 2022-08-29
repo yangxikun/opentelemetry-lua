@@ -24,7 +24,7 @@ end
 function _M.export_spans(self, spans)
     local span_string = ""
     for _, span in ipairs(spans) do
-        span_string = span_string .. encoder.to_console(span) .. "\n"
+        span_string = span_string .. encoder.for_console(span) .. "\n"
     end
 
     -- Check if ngx variable is not nil; use ngx.log if ngx var is present.
