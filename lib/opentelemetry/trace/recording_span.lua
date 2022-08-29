@@ -2,7 +2,7 @@ local attribute   = require("opentelemetry.attribute")
 local event_new   = require("opentelemetry.trace.event").new
 local span_kind   = require("opentelemetry.trace.span_kind")
 local span_status = require("opentelemetry.trace.span_status")
-local util    = require("opentelemetry.util")
+local util        = require("opentelemetry.util")
 
 local _M = {
 }
