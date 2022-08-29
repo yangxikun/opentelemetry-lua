@@ -82,7 +82,4 @@ function _M.for_console(span)
     return ret
 end
 
-function _M.to_otlp(span)
-end
-
 return _M
