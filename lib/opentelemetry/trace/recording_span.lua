@@ -1,8 +1,8 @@
+local attribute   = require("opentelemetry.attribute")
+local event_new   = require("opentelemetry.trace.event").new
 local span_kind   = require("opentelemetry.trace.span_kind")
 local span_status = require("opentelemetry.trace.span_status")
-local event_new   = require("opentelemetry.trace.event").new
-local attribute   = require("opentelemetry.attribute")
-local util        = require("opentelemetry.util")
+local util    = require("opentelemetry.util")
 
 local _M = {
 }
@@ -133,50 +133,6 @@ end
 
 function _M.tracer_provider(self)
     return self.tracer.provider
-end
-
-local function hex2bytes(str)
-    return (str:gsub('..', function(cc)
-        local n = tonumber(cc, 16)
-        if n then
-            return string.char(n)
-        end
-    end))
-end
-
-function _M.for_export(self)
-    return {
-        trace_id = self.ctx.trace_id,
-        span_id = self.ctx.span_id,
-        trace_state = "",
-        parent_span_id = self.parent_ctx.span_id or "",
-        name = self.name,
-        kind = self.kind,
-        start_time_unix_nano = string.format("%d", self.start_time),
-        end_time_unix_nano = string.format("%d", self.end_time),
-        attributes = self.attributes,
-        dropped_attributes_count = 0,
-        events = self.events,
-        dropped_events_count = 0,
-        links = {},
-        dropped_links_count = 0,
-        status = self.status
-    }
-end
-
-function _M.for_otlp_export(self)
-    local ret = self:for_export()
-    ret.trace_id = hex2bytes(ret.trace_id)
-    ret.span_id = hex2bytes(ret.span_id)
-    ret.parent_span_id = hex2bytes(ret.parent_span_id)
-    return ret
-end
-
-function _M.for_console_export(self)
-    local ret = "\n---------------------------------------------------------\n"
-    ret = ret .. util.table_as_string(self:for_export(), 2)
-    ret = ret .. "---------------------------------------------------------\n"
-    return ret
 end
 
 function _M.plain(self)

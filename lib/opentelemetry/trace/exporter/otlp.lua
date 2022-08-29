@@ -1,7 +1,9 @@
+local encoder = require("opentelemetry.trace.exporter.encoder")
 local pb = require("opentelemetry.trace.exporter.pb")
 local util = require("opentelemetry.util")
 local RETRY_LIMIT = 3
 local DEFAULT_TIMEOUT_MS = 10000
+
 
 local _M = {
 }
@@ -64,7 +66,7 @@ function _M.export_spans(self, spans)
     for _, span in ipairs(spans) do
         table.insert(
             body.resource_spans[1].instrumentation_library_spans[1].spans,
-            span:for_otlp_export())
+            encoder.for_otlp(span))
     end
     call_collector(self, pb.encode(body))
 end
