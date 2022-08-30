@@ -1,7 +1,6 @@
 local otel_global = require("opentelemetry.global")
 local timer_at = ngx.timer.at
 local now = ngx.now
-local create_timer
 local batch_size_metric = "otel.bsp.batch_size"
 local buffer_utilization_metric = "otel.bsp.buffer_utilization"
 local dropped_spans_metric = "otel.bsp.dropped_spans"
@@ -55,55 +54,6 @@ local function process_batches_timer(self, batches)
     end
 end
 
-local function flush_batches(premature, self)
-    if premature then
-        ngx.log(ngx.INFO, "exiting, try export spans")
-
-        self:flush_all()
-        return
-    end
-
-    local delay
-
-    -- batch timeout
-    if now() - self.first_queue_t >= self.batch_timeout and #self.queue > 0 then
-        table.insert(self.batch_to_process, self.queue)
-        self.queue = {}
-    end
-
-    -- copy batch_to_process, avoid conflict with on_end
-    local batch_to_process = self.batch_to_process
-    self.batch_to_process = {}
-
-    process_batches(nil, self, batch_to_process)
-
-    -- check if we still have work to do
-    if #self.batch_to_process > 0 then
-        delay = 0
-    elseif #self.queue > 0 then
-        delay = self.inactive_timeout
-    end
-
-    if delay then
-        create_timer(self, delay)
-        return
-    end
-
-    self.is_timer_running = false
-end
-
-function create_timer(self, delay)
-    local hdl, err = timer_at(delay, flush_batches, self)
-    if not hdl then
-        ngx.log(ngx.ERR, "failed to create timer: ", err)
-        if ngx.worker.exiting() then
-            self:flush_all()
-        end
-        return
-    end
-    self.is_timer_running = true
-end
-
 ------------------------------------------------------------------
 -- create a batch span processor.
 --
@@ -135,11 +85,12 @@ function _M.new(exporter, opts)
         max_export_batch_size = opts.max_export_batch_size or 256,
         queue = {},
         first_queue_t = 0,
-        batch_to_process = {},
-        is_timer_running = false,
+        batches_to_process = {},
         closed = false,
         dropping_count = 0,
     }
+    self.maximum_pending_batches = math.floor(
+        self.max_queue_size * self.max_export_batch_size) - 1
 
     assert(self.batch_timeout > 0)
     assert(self.inactive_timeout > 0)
@@ -161,60 +112,64 @@ function _M.on_end(self, span)
             report_dropped_spans(1, "buffer-full")
             return
         end
-
-        -- export spans
-        process_batches_timer(self, self.batch_to_process)
-        self.batch_to_process = {}
+    else
+        table.insert(self.queue, span)
+        if #self.queue == 1 then
+            self.first_queue_t = now()
+        end
     end
 
-    table.insert(self.queue, span)
-    if #self.queue == 1 then
-        self.first_queue_t = now()
-    end
-
-    if #self.queue >= self.max_export_batch_size then
-        table.insert(self.batch_to_process, self.queue)
+    -- Make a batch if batch timeout has been reached or queue >= batch size
+    if now() - self.first_queue_t >= self.batch_timeout and #self.queue > 0 then
+        table.insert(self.batches_to_process, self.queue)
+        self.queue = {}
+    elseif #self.queue >= self.max_export_batch_size then
+        table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     end
 
-    if not self.is_timer_running then
-        create_timer(self, self.inactive_timeout)
+    -- only export when we have a full batch
+    if #self.batches_to_process >= self.maximum_pending_batches then
+        -- move batch to process to a local variable to avoid data race
+        local batches_to_process = self.batches_to_process
+        self.batches_to_process = {}
+        -- process batches in background
+        process_batches_timer(self, batches_to_process)
     end
-end
-
-function _M.force_flush(self)
-    if self.closed then
-        return
-    end
-
-    self:flush_all(true)
 end
 
 function _M.shutdown(self)
-    self:force_flush()
+    self:flush_all()
     self.closed = true
 end
 
 function _M.flush_all(self, with_timer)
-    if #self.queue > 0 then
-        table.insert(self.batch_to_process, self.queue)
+    with_timer = with_timer or false
+
+    if self.closed then
+        return
+    end
+
+  if #self.queue > 0 then
+        table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     end
 
-    if #self.batch_to_process == 0 then
+    if #self.batches_to_process == 0 then
         return
     end
+
     if with_timer then
-        process_batches_timer(self, self.batch_to_process)
+        process_batches_timer(self, self.batches_to_process)
     else
-        process_batches(nil, self, self.batch_to_process)
+        process_batches(nil, self, self.batches_to_process)
     end
 
-    self.batch_to_process = {}
+    self.batches_to_process = {}
 end
 
 function _M.get_queue_size(self)
-    return #self.queue + #self.batch_to_process * self.max_export_batch_size
+    return #self.queue + #self.batches_to_process * self.max_export_batch_size
 end
 
 return _M
