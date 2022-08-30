@@ -90,7 +90,7 @@ function _M.new(exporter, opts)
         dropping_count = 0,
     }
     self.maximum_pending_batches = math.floor(
-        self.max_queue_size * self.max_export_batch_size) - 1
+        self.max_queue_size / self.max_export_batch_size) - 1
 
     assert(self.batch_timeout > 0)
     assert(self.inactive_timeout > 0)
