@@ -105,8 +105,8 @@ function _M.on_end(self, span)
         return
     end
 
+    -- Drop span if queue is full, otherwise add span to queue
     if self:get_queue_size() >= self.max_queue_size then
-        -- drop span
         if self.drop_on_queue_full then
             ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
             report_dropped_spans(1, "buffer-full")
@@ -128,11 +128,15 @@ function _M.on_end(self, span)
         self.queue = {}
     end
 
-    -- only export when we have a full batch
+    -- Export if we've got enough batches. We want to export multiple batches
+    -- simultaneously to reduce the number of ngx.timer.at calls, since they
+    -- incur overhead.
     if #self.batches_to_process >= self.maximum_pending_batches then
-        -- move batch to process to a local variable to avoid data race
+        -- Move batch to process to a local variable so that there is not a race
+        -- condition
         local batches_to_process = self.batches_to_process
         self.batches_to_process = {}
+
         -- process batches in background
         process_batches_timer(self, batches_to_process)
     end
@@ -150,7 +154,7 @@ function _M.flush_all(self, with_timer)
         return
     end
 
-  if #self.queue > 0 then
+    if #self.queue > 0 then
         table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     end
@@ -159,13 +163,14 @@ function _M.flush_all(self, with_timer)
         return
     end
 
-    if with_timer then
-        process_batches_timer(self, self.batches_to_process)
-    else
-        process_batches(nil, self, self.batches_to_process)
-    end
-
+    local batches_to_process = self.batches_to_process
     self.batches_to_process = {}
+
+    if with_timer then
+        process_batches_timer(self, batches_to_process)
+    else
+        process_batches(nil, self, batches_to_process)
+    end
 end
 
 function _M.get_queue_size(self)
