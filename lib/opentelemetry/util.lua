@@ -108,6 +108,36 @@ local function percent_encode_baggage_string(str)
   return str
 end
 
+--------------------------------------------------------------------------------
+-- Recursively render a table as a string
+-- Code from http://lua-users.org/wiki/TableSerialization
+--------------------------------------------------------------------------------
+local function table_as_string (tt, indent, done)
+  done = done or {}
+  indent = indent or 0
+  if type(tt) == "table" then
+    local sb = {}
+    for key, value in pairs (tt) do
+      table.insert(sb, string.rep (" ", indent)) -- indent it
+      if type (value) == "table" and not done [value] then
+        done [value] = true
+        table.insert(sb, key .. " = {\n");
+        table.insert(sb, table_as_string (value, indent + 2, done))
+        table.insert(sb, string.rep (" ", indent)) -- indent it
+        table.insert(sb, "}\n");
+      elseif "number" == type(key) then
+        table.insert(sb, string.format("\"%s\"\n", tostring(value)))
+      else
+        table.insert(sb, string.format(
+            "%s = \"%s\"\n", tostring (key), tostring(value)))
+       end
+    end
+    return table.concat(sb)
+  else
+    return tt .. "\n"
+  end
+end
+
 _M.ngx_time_nano = ngx_time_nano
 _M.gettimeofday = ffi_gettimeofday
 _M.gettimeofday_ms = gettimeofday_ms
@@ -116,6 +146,7 @@ _M.random_float = random_float
 _M.shallow_copy_table = shallow_copy_table
 _M.decode_percent_encoded_string = decode_percent_encoded_string
 _M.percent_encode_baggage_string = percent_encode_baggage_string
+_M.table_as_string = table_as_string
 
 -- default time function, will be used in this SDK
 -- change it if needed

@@ -1,7 +1,7 @@
+local attribute   = require("opentelemetry.attribute")
+local event_new   = require("opentelemetry.trace.event").new
 local span_kind   = require("opentelemetry.trace.span_kind")
 local span_status = require("opentelemetry.trace.span_status")
-local event_new   = require("opentelemetry.trace.event").new
-local attribute   = require("opentelemetry.attribute")
 local util        = require("opentelemetry.util")
 
 local _M = {
@@ -74,7 +74,7 @@ function _M.set_attributes(self, ...)
         return
     end
 
-    for _, attr in ipairs({...}) do
+    for _, attr in ipairs({ ... }) do
         table.insert(self.attributes, attr)
     end
 end
@@ -104,7 +104,7 @@ function _M.record_error(self, error)
     end
 
     table.insert(self.events, event_new("exception", {
-        attributes = {attribute.string("exception.message", error)},
+        attributes = { attribute.string("exception.message", error) },
     }))
 end
 
@@ -137,7 +137,7 @@ end
 
 function _M.plain(self)
     return {
-        tracer = {il = self.tracer.il},
+        tracer = { il = self.tracer.il },
         parent_ctx = self.parent_ctx:plain(),
         ctx = self.ctx:plain(),
         name = self.name,
