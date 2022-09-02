@@ -120,6 +120,10 @@ function _M.on_end(self, span)
     if self:is_queue_full() and self.drop_on_queue_full then
         ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
         report_dropped_spans(1, "buffer-full")
+        local batches_to_process = self.batches_to_process
+        self.batches_to_process = {}
+        set_process_batches_timer(self, batches_to_process, self.inactive_timeout)
+
         return
     else
         table.insert(self.queue, span)
