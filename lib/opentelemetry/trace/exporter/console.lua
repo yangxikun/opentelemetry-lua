@@ -33,6 +33,8 @@ function _M.export_spans(self, spans)
     else
         print("Export spans: ", span_string)
     end
+
+    return true, nil
 end
 
 function _M.force_flush(self)

@@ -28,16 +28,14 @@ local function report_result(success, err, batch_size)
             exported_spans_metric, batch_size)
     else
         err = err or "unknown"
+        ngx.log(ngx.ERR, "Failed to export batch. Error: " .. err)
         otel_global.metrics_reporter:add_to_counter(
             exporter_failure_metric, 1, { reason = err })
         report_dropped_spans(batch_size, err)
     end
 end
 
-local function process_batches(premature, self, batches)
-    if premature then
-        return
-    end
+local function process_batches_internal(self, batches)
     otel_global.metrics_reporter:observe_value(buffer_utilization_metric, #self.queue / self.max_queue_size)
 
     for _, batch in ipairs(batches) do
@@ -47,10 +45,25 @@ local function process_batches(premature, self, batches)
     end
 end
 
-local function process_batches_timer(self, batches)
-    local hdl, err = timer_at(0, process_batches, self, batches)
+local function process_batches(premature, self, batches)
+    if premature then
+        return
+    end
+
+    -- Wrap in pcall to make sure we reset self.process_batches_timer_running
+    local ok, err = pcall(process_batches_internal, self, batches)
+    if not ok then
+        ngx.log(ngx.ERR, "Error running process_batches_internal..." .. err)
+    end
+    self.process_batches_timer_running = false
+end
+
+local function set_process_batches_timer(self, batches, timeout)
+    local hdl, err = timer_at(timeout or 0, process_batches, self, batches)
     if not hdl then
-        ngx.log(ngx.ERR, "failed to create timer: ", err)
+        ngx.log(ngx.ERR, "Failed to create process_batches timer: ", err)
+    else
+        self.process_batches_timer_running = true
     end
 end
 
@@ -87,10 +100,8 @@ function _M.new(exporter, opts)
         first_queue_t = 0,
         batches_to_process = {},
         closed = false,
-        dropping_count = 0,
+        process_batches_timer_running = false
     }
-    self.maximum_pending_batches = math.floor(
-        self.max_queue_size / self.max_export_batch_size) - 1
 
     assert(self.batch_timeout > 0)
     assert(self.inactive_timeout > 0)
@@ -106,12 +117,10 @@ function _M.on_end(self, span)
     end
 
     -- Drop span if queue is full, otherwise add span to queue
-    if self:get_queue_size() >= self.max_queue_size then
-        if self.drop_on_queue_full then
-            ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
-            report_dropped_spans(1, "buffer-full")
-            return
-        end
+    if self:is_queue_full() and self.drop_on_queue_full then
+        ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
+        report_dropped_spans(1, "buffer-full")
+        return
     else
         table.insert(self.queue, span)
         if #self.queue == 1 then
@@ -120,7 +129,7 @@ function _M.on_end(self, span)
     end
 
     -- Make a batch if batch timeout has been reached or queue >= batch size
-    if now() - self.first_queue_t >= self.batch_timeout and #self.queue > 0 then
+    if (now() - self.first_queue_t >= self.batch_timeout) and #self.queue > 0 then
         table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     elseif #self.queue >= self.max_export_batch_size then
@@ -128,23 +137,22 @@ function _M.on_end(self, span)
         self.queue = {}
     end
 
-    -- Export if we've got enough batches. We want to export multiple batches
-    -- simultaneously to reduce the number of ngx.timer.at calls, since they
-    -- incur overhead.
-    if #self.batches_to_process >= self.maximum_pending_batches then
-        -- Move batch to process to a local variable so that there is not a race
-        -- condition
+    -- If there's any batches to process and no export currently running, queue
+    -- export.
+    if #self.batches_to_process > 0 and not self.process_batches_timer_running then
         local batches_to_process = self.batches_to_process
         self.batches_to_process = {}
-
-        -- process batches in background
-        process_batches_timer(self, batches_to_process)
+        set_process_batches_timer(self, batches_to_process, self.inactive_timeout)
     end
 end
 
 function _M.shutdown(self)
     self:flush_all()
     self.closed = true
+end
+
+function _M.force_flush(self)
+    self:flush_all()
 end
 
 function _M.flush_all(self, with_timer)
@@ -167,14 +175,14 @@ function _M.flush_all(self, with_timer)
     self.batches_to_process = {}
 
     if with_timer then
-        process_batches_timer(self, batches_to_process)
+        set_process_batches_timer(self, batches_to_process)
     else
         process_batches(nil, self, batches_to_process)
     end
 end
 
-function _M.get_queue_size(self)
-    return #self.queue + #self.batches_to_process * self.max_export_batch_size
+function _M.is_queue_full(self)
+    return (#self.queue + #self.batches_to_process * self.max_export_batch_size) >= self.max_queue_size
 end
 
 return _M
