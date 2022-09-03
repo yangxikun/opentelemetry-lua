@@ -66,18 +66,18 @@ local function flush_batches(premature, self)
 
     -- batch timeout
     if now() - self.first_queue_t >= self.batch_timeout and #self.queue > 0 then
-        table.insert(self.batch_to_process, self.queue)
+        table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     end
 
-    -- copy batch_to_process, avoid conflict with on_end
-    local batch_to_process = self.batch_to_process
-    self.batch_to_process = {}
+    -- copy batches_to_process, avoid conflict with on_end
+    local batches_to_process = self.batches_to_process
+    self.batches_to_process = {}
 
-    process_batches(nil, self, batch_to_process)
+    process_batches(nil, self, batches_to_process)
 
     -- check if we still have work to do
-    if #self.batch_to_process > 0 then
+    if #self.batches_to_process > 0 then
         delay = 0
     elseif #self.queue > 0 then
         delay = self.inactive_timeout
@@ -134,7 +134,7 @@ function _M.new(exporter, opts)
         max_export_batch_size = opts.max_export_batch_size or 256,
         queue = {},
         first_queue_t = 0,
-        batch_to_process = {},
+        batches_to_process = {},
         is_timer_running = false,
         closed = false,
         dropping_count = 0,
@@ -163,8 +163,9 @@ function _M.on_end(self, span)
 
         -- export spans
         otel_global.metrics_reporter:observe_value(buffer_utilization_metric, self:get_queue_size()/ self.max_queue_size)
-        process_batches_timer(self, self.batch_to_process)
-        self.batch_to_process = {}
+        local batches_to_process = self.batches_to_process
+        self.batches_to_process = {}
+        process_batches_timer(self, batches_to_process)
     end
 
     table.insert(self.queue, span)
@@ -173,7 +174,7 @@ function _M.on_end(self, span)
     end
 
     if #self.queue >= self.max_export_batch_size then
-        table.insert(self.batch_to_process, self.queue)
+        table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     end
 
@@ -198,24 +199,25 @@ end
 
 function _M.flush_all(self, with_timer)
     if #self.queue > 0 then
-        table.insert(self.batch_to_process, self.queue)
+        table.insert(self.batches_to_process, self.queue)
         self.queue = {}
     end
 
-    if #self.batch_to_process == 0 then
+    if #self.batches_to_process == 0 then
         return
     end
-    if with_timer then
-        process_batches_timer(self, self.batch_to_process)
-    else
-        process_batches(nil, self, self.batch_to_process)
-    end
 
-    self.batch_to_process = {}
+    local batches_to_process = self.batches_to_process
+    self.batches_to_process = {}
+    if with_timer then
+        process_batches_timer(self, batches_to_process)
+    else
+        process_batches(nil, self, batches_to_process)
+    end
 end
 
 function _M.get_queue_size(self)
-    return #self.queue + #self.batch_to_process * self.max_export_batch_size
+    return #self.queue + #self.batches_to_process * self.max_export_batch_size
 end
 
 return _M

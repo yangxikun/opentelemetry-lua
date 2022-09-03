@@ -268,7 +268,7 @@ location = /t {
             ngx.log(ngx.ERR, "expect batch_span_processor.is_timer_running == true")
         end
 
-        if #batch_span_processor.batch_to_process ~=0 or #batch_span_processor.queue ~=0 then
+        if #batch_span_processor.batches_to_process ~=0 or #batch_span_processor.queue ~=0 then
             ngx.log(ngx.ERR, "expect export all spans")
         end
 
@@ -320,7 +320,7 @@ location = /t {
             ngx.log(ngx.ERR, "expect export_times == 1")
         end
 
-        if #batch_span_processor.batch_to_process ~=0 or #batch_span_processor.queue ~=0 then
+        if #batch_span_processor.batches_to_process ~=0 or #batch_span_processor.queue ~=0 then
             ngx.log(ngx.ERR, "expect export all spans")
         end
 
