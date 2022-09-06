@@ -177,6 +177,7 @@ function _M.on_end(self, span)
     end
 
     if not self.is_timer_running then
+        otel_global.metrics_reporter:observe_value(buffer_utilization_metric, self:get_queue_size()/ self.max_queue_size)
         create_timer(self, self.inactive_timeout)
     end
 end
