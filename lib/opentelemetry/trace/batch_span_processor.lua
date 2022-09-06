@@ -39,7 +39,6 @@ local function process_batches(premature, self, batches)
     if premature then
         return
     end
-    otel_global.metrics_reporter:observe_value(buffer_utilization_metric, #self.queue / self.max_queue_size)
 
     for _, batch in ipairs(batches) do
         otel_global.metrics_reporter:record_value(batch_size_metric, #batch)
