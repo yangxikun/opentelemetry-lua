@@ -162,6 +162,7 @@ function _M.on_end(self, span)
         end
 
         -- export spans
+        otel_global.metrics_reporter:observe_value(buffer_utilization_metric, self:get_queue_size()/ self.max_queue_size)
         process_batches_timer(self, self.batch_to_process)
         self.batch_to_process = {}
     end
