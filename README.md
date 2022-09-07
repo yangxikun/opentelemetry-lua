@@ -322,3 +322,23 @@ span:add_event(name, {attributes = {attr.string("type", "job")}})
 -- get tracer provider
 local tp = span:tracer_provider()
 ```
+
+### Metrics Reporting
+
+To gather metrics about the operation of this library, users can register a metrics reporter with the `opentelemetry.global` module. Your metrics reporter should satisfy the interface in `lib/opentelemetry/metrics_reporter.lua`. For example:
+
+```lua
+local otel_global = require("opentelemetry.global")
+local my_metrics_reporter = {
+    add_to_counter = function(self, metric, increment, labels)
+        print("make a metric call!")
+    end
+    record_value = function(self, metric, increment, labels)
+        print("make a metric call!")
+    end
+    observe_value = function(self, metric, increment, labels)
+        print("make a metric call!")
+    end
+}
+otel_global.set_metrics_reporter(metrics_reporter)
+```

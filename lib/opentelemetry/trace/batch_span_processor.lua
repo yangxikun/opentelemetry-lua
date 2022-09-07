@@ -1,6 +1,13 @@
+local otel_global = require("opentelemetry.global")
 local timer_at = ngx.timer.at
 local now = ngx.now
 local create_timer
+local batch_size_metric = "otel.bsp.batch_size"
+local buffer_utilization_metric = "otel.bsp.buffer_utilization"
+local dropped_spans_metric = "otel.bsp.dropped_spans"
+local export_success_metric = "otel.bsp.export.success"
+local exported_spans_metric = "otel.bsp.exported_spans"
+local exporter_failure_metric = "otel.otlp_exporter.failure"
 
 local _M = {
 }
@@ -9,13 +16,34 @@ local mt = {
     __index = _M
 }
 
+local function report_dropped_spans(count, reason)
+    otel_global.metrics_reporter:add_to_counter(
+        dropped_spans_metric, count, { reason = reason })
+end
+
+local function report_result(success, err, batch_size)
+    if success then
+        otel_global.metrics_reporter:add_to_counter(
+            export_success_metric, 1)
+        otel_global.metrics_reporter:add_to_counter(
+            exported_spans_metric, batch_size)
+    else
+        err = err or "unknown"
+        otel_global.metrics_reporter:add_to_counter(
+            exporter_failure_metric, 1, { reason = err })
+        report_dropped_spans(batch_size, err)
+    end
+end
+
 local function process_batches(premature, self, batches)
     if premature then
         return
     end
 
     for _, batch in ipairs(batches) do
-        self.exporter:export_spans(batch)
+        otel_global.metrics_reporter:record_value(batch_size_metric, #batch)
+        local success, err = self.exporter:export_spans(batch)
+        report_result(success, err, #batch)
     end
 end
 
@@ -129,11 +157,12 @@ function _M.on_end(self, span)
         -- drop span
         if self.drop_on_queue_full then
             ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
-            self.dropping_count = self.dropping_count + 1
+            report_dropped_spans(1, "buffer-full")
             return
         end
 
         -- export spans
+        otel_global.metrics_reporter:observe_value(buffer_utilization_metric, self:get_queue_size()/ self.max_queue_size)
         process_batches_timer(self, self.batch_to_process)
         self.batch_to_process = {}
     end
@@ -149,6 +178,7 @@ function _M.on_end(self, span)
     end
 
     if not self.is_timer_running then
+        otel_global.metrics_reporter:observe_value(buffer_utilization_metric, self:get_queue_size()/ self.max_queue_size)
         create_timer(self, self.inactive_timeout)
     end
 end
@@ -186,10 +216,6 @@ end
 
 function _M.get_queue_size(self)
     return #self.queue + #self.batch_to_process * self.max_export_batch_size
-end
-
-function _M.get_dropping_count(self)
-    return self.dropping_count
 end
 
 return _M
