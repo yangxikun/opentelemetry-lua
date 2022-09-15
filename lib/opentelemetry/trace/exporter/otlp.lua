@@ -56,7 +56,7 @@ local function call_collector(exporter, pb_encoded_body)
 
 
         -- If  failure count exceeds threshold, open circuit
-        if exporter.failure_count == CIRCUIT_OPEN_THRESHOLD then
+        if exporter.failure_count >= CIRCUIT_OPEN_THRESHOLD then
             exporter.circuit_state = CIRCUIT_OPEN
             exporter.circuit_open_start_time_ms = current_time
         end
