@@ -83,6 +83,7 @@ local function call_collector(exporter, pb_encoded_body)
             exporter.failure_count = exporter.failure_count + 1
             if exporter.circuit_state == CIRCUIT_HALF_OPEN then
                 exporter.circuit_state = CIRCUIT_OPEN
+                return false, res_error or "unknown"
             end
 
             failures = failures + 1
