@@ -92,6 +92,7 @@ local function call_collector(exporter, pb_encoded_body)
             if exporter.circuit_state == CIRCUIT_HALF_OPEN then
                 exporter.success_count = exporter.success_count + 1
                 if exporter.success_count >= RECLOSE_CIRCUIT_THRESHOLD then
+                    exporter.failure_count = 0
                     exporter.circuit_state = CIRCUIT_CLOSED
                 end
             end
