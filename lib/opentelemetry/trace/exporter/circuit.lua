@@ -1,4 +1,4 @@
-local util = require("lib.opentelemetry.util")
+local util = require("opentelemetry.util")
 local otel_global =  require("lib.opentelemetry.global")
 
 local _M = {
