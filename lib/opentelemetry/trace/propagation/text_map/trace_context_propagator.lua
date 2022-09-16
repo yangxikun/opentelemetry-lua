@@ -194,7 +194,7 @@ function _M:extract(context, carrier, getter)
     getter = getter or self.text_map_getter
     local trace_id, span_id, trace_flags = parse_trace_parent(getter.get(carrier, traceparent_header))
     if not trace_id or not span_id or not trace_flags then
-        return context:with_span_context(empty_span_context)
+        return context
     end
 
     local trace_state = parse_trace_state(getter.get(carrier, tracestate_header))
