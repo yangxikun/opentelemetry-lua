@@ -51,7 +51,7 @@ if _RUN_SLOW_TESTS then
 end
 
 describe("circuit breaker", function()
-    it("increments failure counter when do_request does not return response", function()
+    it("doesn't call do_request when should_make_request() is false", function()
         local span
         local ctx = context.new()
         ctx:attach()
@@ -59,14 +59,13 @@ describe("circuit breaker", function()
         span:finish()
         local client = client.new("http://localhost:8080", 10)
         local ex = exporter.new(client, 1)
-        client.do_request = function(self, body)
-            return nil, "there was a problem"
-        end
+        ex.circuit.should_make_request = function() return false end
+        spy.on(client, "do_request")
         ex:export_spans({ span})
-        assert(ex.failure_count == 1)
+        assert.spy(client.do_request).was_not_called()
     end)
 
-    it("doesn't call do_request when circuit_state is open", function()
+    it("calls do_request when should_make_request() is true", function()
         local span
         local ctx = context.new()
         ctx:attach()
@@ -74,7 +73,7 @@ describe("circuit breaker", function()
         span:finish()
         local client = client.new("http://localhost:8080", 10)
         local ex = exporter.new(client, 1)
-        ex.circuit_state = "open"
+        ex.circuit.should_make_request = function() return true end
         spy.on(client, "do_request")
         ex:export_spans({ span})
         assert.spy(client.do_request).was_not_called()

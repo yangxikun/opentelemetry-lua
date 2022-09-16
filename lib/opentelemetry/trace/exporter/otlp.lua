@@ -5,6 +5,7 @@ local util = require("opentelemetry.util")
 local BACKOFF_RETRY_LIMIT = 3
 local DEFAULT_TIMEOUT_MS = 10000
 local exporter_request_duration_metric = "otel.otlp_exporter.request_duration"
+local circuit = require("opentelemetry.trace.exporter.circuit")
 local CIRCUIT_OPEN_THRESHOLD = 5
 local RECLOSE_CIRCUIT_THRESHOLD = 5
 local CIRCUIT_CLOSED = "closed"
@@ -18,15 +19,16 @@ local mt = {
     __index = _M
 }
 
-function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms)
+function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms, circuit_open_threshold)
     local self = {
         client = http_client,
         timeout_ms = timeout_ms or DEFAULT_TIMEOUT_MS,
         failure_count = 0,
         success_count = 0,
-        circuit_open_start_time_ms = nil,
-        circuit_state = "open",
-        circuit_reset_timeout_ms = circuit_reset_timeout_ms or 5000
+        circuit = circuit.new({
+            circuit_reset_timeout_ms = circuit_reset_timeout_ms,
+            failure_threshold = circuit_open_threshold
+        })
     }
     return setmetatable(self, mt)
 end
@@ -54,49 +56,24 @@ local function call_collector(exporter, pb_encoded_body)
             return false, err_message
         end
 
-
-        -- If  failure count exceeds threshold, open circuit
-        if exporter.failure_count >= CIRCUIT_OPEN_THRESHOLD then
-            exporter.circuit_state = CIRCUIT_OPEN
-            exporter.circuit_open_start_time_ms = current_time
+        if not circuit:should_make_request() then
+            ngx.log(ngx.INFO, "Circuit breaker is open")
+            return false, "Circuit breaker is open"
         end
 
-        -- If circuit is open, no requests should flow through
-        if exporter.circuit_state == CIRCUIT_OPEN then
-            -- If circuit is open, we should make half-open if reset timeout has elapsed
-            if (current_time - exporter.circuit_open_start_time_ms) > exporter.circuit_reset_timeout_ms then
-                exporter.circuit_state = CIRCUIT_HALF_OPEN
-                exporter.circuit_open_start_time_ms = nil
-                exporter.failure_count = 0
-                exporter.success_count = 0
-            else
-                return false, "Circuit breaker is open"
-            end
-        end
-
+        -- Make request
         res, res_error = exporter.client:do_request(pb_encoded_body)
         local after_time = util.gettimeofday_ms()
         otel_global.metrics_reporter:record_value(
             exporter_request_duration_metric, after_time - current_time)
 
         if not res then
-            exporter.failure_count = exporter.failure_count + 1
-            if exporter.circuit_state == CIRCUIT_HALF_OPEN then
-                exporter.circuit_state = CIRCUIT_OPEN
-                return false, res_error or "unknown"
-            end
-
+            circuit:process_failed_request()
             failures = failures + 1
             ngx.sleep(util.random_float(2 ^ failures))
             ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
         else
-            if exporter.circuit_state == CIRCUIT_HALF_OPEN then
-                exporter.success_count = exporter.success_count + 1
-                if exporter.success_count >= RECLOSE_CIRCUIT_THRESHOLD then
-                    exporter.failure_count = 0
-                    exporter.circuit_state = CIRCUIT_CLOSED
-                end
-            end
+            circuit:process_succeeded_request()
             return true, nil
         end
     end
