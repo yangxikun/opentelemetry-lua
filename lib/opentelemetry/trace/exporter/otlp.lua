@@ -6,11 +6,6 @@ local BACKOFF_RETRY_LIMIT = 3
 local DEFAULT_TIMEOUT_MS = 10000
 local exporter_request_duration_metric = "otel.otlp_exporter.request_duration"
 local circuit = require("opentelemetry.trace.exporter.circuit")
-local CIRCUIT_OPEN_THRESHOLD = 5
-local RECLOSE_CIRCUIT_THRESHOLD = 5
-local CIRCUIT_CLOSED = "closed"
-local CIRCUIT_OPEN = "open"
-local CIRCUIT_HALF_OPEN = "half_open"
 
 local _M = {
 }
@@ -56,7 +51,7 @@ local function call_collector(exporter, pb_encoded_body)
             return false, err_message
         end
 
-        if not circuit:should_make_request() then
+        if not exporter.circuit:should_make_request() then
             ngx.log(ngx.INFO, "Circuit breaker is open")
             return false, "Circuit breaker is open"
         end
@@ -68,12 +63,12 @@ local function call_collector(exporter, pb_encoded_body)
             exporter_request_duration_metric, after_time - current_time)
 
         if not res then
-            circuit:process_failed_request()
+            exporter.circuit:process_failed_request()
             failures = failures + 1
             ngx.sleep(util.random_float(2 ^ failures))
             ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
         else
-            circuit:process_succeeded_request()
+            exporter.circuit:process_succeeded_request()
             return true, nil
         end
     end
