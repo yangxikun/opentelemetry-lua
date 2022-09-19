@@ -16,7 +16,7 @@ local mt = {
 }
 
 --------------------------------------------------------------------------------
--- Returns a new circuit. No more than 1 request should be in flight at a time.
+-- Returns a new circuit. No more than 1 request should be in flight at a time,
 -- when those requests are brokered by this circuit.
 --
 -- @param options Hash containing two keys:
