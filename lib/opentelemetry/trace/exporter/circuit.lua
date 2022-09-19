@@ -65,6 +65,7 @@ function _M.record_success(self)
 
     if self.state == self.HALF_OPEN then
         otel_global.metrics_reporter:add_to_counter("otel.bsp.circuit_breaker_closed", 1)
+        self.failure_count = 0
         self.state = self.CLOSED
         return
     end
