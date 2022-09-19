@@ -74,8 +74,9 @@ describe("circuit breaker", function()
         local client = client.new("http://localhost:8080", 10)
         local ex = exporter.new(client, 1)
         ex.circuit.should_make_request = function() return true end
+        client.do_request = function(arg) return "hi", nil end
         spy.on(client, "do_request")
         ex:export_spans({ span})
-        assert.spy(client.do_request).was_not_called()
+        assert.spy(client.do_request).was_called(1)
     end)
 end)
