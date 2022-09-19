@@ -30,12 +30,11 @@ function _M.should_make_request(self)
     end
 
     if self.state == self.OPEN then
-        if (util.gettimeofday_ms() - self.open_start_time_ms) > self.reset_timeout_ms then
-            self.state = self.HALF_OPEN
-            self.open_start_time_ms = nil
-            return true
-        else
+        if (util.gettimeofday_ms() - self.open_start_time_ms) < self.reset_timeout_ms then
             return false
+        else
+            self.state = self.HALF_OPEN
+            return true
         end
     end
 
