@@ -21,7 +21,7 @@ function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms, circuit_open_
         failure_count = 0,
         success_count = 0,
         circuit = circuit.new({
-            circuit_reset_timeout_ms = circuit_reset_timeout_ms,
+            reset_timeout_ms = circuit_reset_timeout_ms,
             failure_threshold = circuit_open_threshold
         })
     }

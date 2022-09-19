@@ -1,5 +1,5 @@
 local util = require("opentelemetry.util")
-local otel_global =  require("opentelemetry.global")
+local otel_global = require("opentelemetry.global")
 
 local _M = {
     OPEN = "open",
@@ -15,7 +15,7 @@ local mt = {
 function _M.new(options)
     options = options or {}
     local self = {
-        circuit_reset_timeout_ms = options["circuit_reset_timeout_ms"] or 5000,
+        reset_timeout_ms = options["reset_timeout_ms"] or 5000,
         failure_threshold = options["failure_threshold"] or 5,
         failure_count = 0,
         open_start_time_ms = nil,
@@ -30,7 +30,7 @@ function _M.should_make_request(self)
     end
 
     if self.state == self.OPEN then
-        if (util.gettimeofday_ms() - self.open_start_time_ms) > self.circuit_reset_timeout_ms then
+        if (util.gettimeofday_ms() - self.open_start_time_ms) > self.reset_timeout_ms then
             self.state = self.HALF_OPEN
             self.open_start_time_ms = nil
         else

@@ -9,14 +9,14 @@ describe("should_make_request", function()
     end)
 
     it("returns false when circuit is open and halfopen_threshold not exceeded", function()
-        local c = circuit.new({ circuit_reset_timeout_ms = 5000 })
+        local c = circuit.new({ reset_timeout_ms = 5000 })
         c.state = c.OPEN
         c.open_start_time_ms = util.gettimeofday_ms()
         assert.is_false(c:should_make_request())
     end)
 
     it("returns true when circuit is open and halfopen_threshold is exceeded", function()
-        local c = circuit.new({ circuit_reset_timeout_ms = 5000 })
+        local c = circuit.new({ reset_timeout_ms = 5000 })
         c.state = c.OPEN
         c.open_start_time_ms = util.gettimeofday_ms() - 6000
         assert.is_true(c:should_make_request())
