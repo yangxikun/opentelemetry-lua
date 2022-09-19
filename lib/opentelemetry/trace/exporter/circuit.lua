@@ -1,3 +1,7 @@
+--------------------------------------------------------------------------------
+-- Contains circuit for use in exporters. For more on the circuit breaker
+-- pattern, see https://martinfowler.com/bliki/CircuitBreaker.html.
+--------------------------------------------------------------------------------
 local util = require("opentelemetry.util")
 local otel_global = require("opentelemetry.global")
 
@@ -11,7 +15,17 @@ local mt = {
     __index = _M
 }
 
-
+--------------------------------------------------------------------------------
+-- Returns a new circuit. No more than 1 request should be in flight at a time.
+-- when those requests are brokered by this circuit.
+--
+-- @param options Hash containing two keys:
+--   failure_threshold: number of failures before the circuit opens and requests
+--      stop flowing
+--   reset_timeout_ms: time in to wait im ms before setting circuit to half-open
+--
+-- @return circut instance
+--------------------------------------------------------------------------------
 function _M.new(options)
     options = options or {}
     local self = {
@@ -24,6 +38,14 @@ function _M.new(options)
     return setmetatable(self, mt)
 end
 
+--------------------------------------------------------------------------------
+-- should_make_request determines if a request should be made or not. It assumes
+-- that circuit state is either CLOSED or OPEN at beginning of method, since the
+-- code assumes that the circuit only brokers one request at a time, and assumes
+-- that we only ever make one request in HALF_OPEN state.
+--
+-- @return boolean
+--------------------------------------------------------------------------------
 function _M.should_make_request(self)
     if self.state == self.CLOSED then
         return true
@@ -41,6 +63,12 @@ function _M.should_make_request(self)
     ngx.log(ngx.ERR, "Circuit breaker could not determine if request should be made (current state: " .. self.state)
 end
 
+--------------------------------------------------------------------------------
+-- record_failure does internal book-keeping about failures and resets circuit
+-- state accordingly.
+--
+-- @return nil
+--------------------------------------------------------------------------------
 function _M.record_failure(self)
     self.failure_count = self.failure_count + 1
 
@@ -57,6 +85,12 @@ function _M.record_failure(self)
     end
 end
 
+--------------------------------------------------------------------------------
+-- record_success does internal book-keeping about successful requests and
+-- resets circuit state accordingly.
+--
+-- @return nil
+--------------------------------------------------------------------------------
 function _M.record_success(self)
     if self.state == self.CLOSED then
         return
