@@ -24,7 +24,7 @@ local mt = {
 --      stop flowing
 --   reset_timeout_ms: time in to wait im ms before setting circuit to half-open
 --
--- @return circut instance
+-- @return circuit instance
 --------------------------------------------------------------------------------
 function _M.new(options)
     options = options or {}
@@ -74,13 +74,15 @@ function _M.record_failure(self)
     self.failure_count = self.failure_count + 1
 
     if self.state == self.CLOSED and self.failure_count >= self.failure_threshold then
-        otel_global.metrics_reporter:add_to_counter("otel.bsp.circuit_breaker_opened", 1)
+        otel_global.metrics_reporter:add_to_counter(
+            "otel.bsp.circuit_breaker_opened", 1)
         self.state = self.OPEN
         self.open_start_time_ms = util.gettimeofday_ms()
     end
 
     if self.state == self.HALF_OPEN then
-        otel_global.metrics_reporter:add_to_counter("otel.bsp.circuit_breaker_opened", 1)
+        otel_global.metrics_reporter:add_to_counter(
+            "otel.bsp.circuit_breaker_opened", 1)
         self.state = self.OPEN
         self.open_start_time_ms = util.gettimeofday_ms()
     end
@@ -98,7 +100,8 @@ function _M.record_success(self)
     end
 
     if self.state == self.HALF_OPEN then
-        otel_global.metrics_reporter:add_to_counter("otel.bsp.circuit_breaker_closed", 1)
+        otel_global.metrics_reporter:add_to_counter(
+            "otel.bsp.circuit_breaker_closed", 1)
         self.failure_count = 0
         self.state = self.CLOSED
         return
