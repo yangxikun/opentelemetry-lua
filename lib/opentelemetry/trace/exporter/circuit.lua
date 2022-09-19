@@ -19,7 +19,7 @@ local mt = {
 -- Returns a new circuit. No more than 1 request should be in flight at a time,
 -- when those requests are brokered by this circuit.
 --
--- @param options Hash containing two keys:
+-- @param options Table containing two keys:
 --   failure_threshold: number of failures before the circuit opens and requests
 --      stop flowing
 --   reset_timeout_ms: time in to wait im ms before setting circuit to half-open
