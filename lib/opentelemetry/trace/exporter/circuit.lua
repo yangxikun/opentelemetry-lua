@@ -42,7 +42,7 @@ function _M.should_make_request(self)
     ngx.log(ngx.ERR, "Circuit breaker could not determine if request should be made (current state: " .. self.state)
 end
 
-function _M.process_failed_request(self)
+function _M.record_failure(self)
     self.failure_count = self.failure_count + 1
 
     if self.state == self.CLOSED and self.failure_count >= self.failure_threshold then

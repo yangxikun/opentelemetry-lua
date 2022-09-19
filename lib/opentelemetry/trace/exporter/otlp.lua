@@ -63,7 +63,7 @@ local function call_collector(exporter, pb_encoded_body)
             exporter_request_duration_metric, after_time - current_time)
 
         if not res then
-            exporter.circuit:process_failed_request()
+            exporter.circuit:record_failure()
             failures = failures + 1
             ngx.sleep(util.random_float(2 ^ failures))
             ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
