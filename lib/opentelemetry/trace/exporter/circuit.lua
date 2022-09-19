@@ -42,7 +42,8 @@ end
 -- should_make_request determines if a request should be made or not. It assumes
 -- that circuit state is either CLOSED or OPEN at beginning of method, since the
 -- code assumes that the circuit only brokers one request at a time, and assumes
--- that we only ever make one request in HALF_OPEN state.
+-- that we only ever make one request in HALF_OPEN state before setting to OPEN
+-- or CLOSED.
 --
 -- @return boolean
 --------------------------------------------------------------------------------
