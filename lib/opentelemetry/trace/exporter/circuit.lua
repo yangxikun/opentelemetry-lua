@@ -33,17 +33,13 @@ function _M.should_make_request(self)
         if (util.gettimeofday_ms() - self.open_start_time_ms) > self.reset_timeout_ms then
             self.state = self.HALF_OPEN
             self.open_start_time_ms = nil
+            return true
         else
             return false
         end
     end
 
-    if self.state == self.HALF_OPEN then
-        return true
-    end
-
-    ngx.log(ngx.ERR, "should not have gotten here")
-    return false
+    ngx.log(ngx.ERR, "Circuit breaker could not determine if request should be made (current state: " .. self.state)
 end
 
 function _M.process_failed_request(self)
