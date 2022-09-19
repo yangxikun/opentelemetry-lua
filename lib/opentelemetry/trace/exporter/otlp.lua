@@ -18,8 +18,6 @@ function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms, circuit_open_
     local self = {
         client = http_client,
         timeout_ms = timeout_ms or DEFAULT_TIMEOUT_MS,
-        failure_count = 0,
-        success_count = 0,
         circuit = circuit.new({
             reset_timeout_ms = circuit_reset_timeout_ms,
             failure_threshold = circuit_open_threshold
