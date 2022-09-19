@@ -68,7 +68,7 @@ local function call_collector(exporter, pb_encoded_body)
             ngx.sleep(util.random_float(2 ^ failures))
             ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
         else
-            exporter.circuit:process_succeeded_request()
+            exporter.circuit:record_success()
             return true, nil
         end
     end

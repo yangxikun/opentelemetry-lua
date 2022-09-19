@@ -42,11 +42,11 @@ describe("record_failure", function()
     end)
 end)
 
-describe("process_succeeded_request", function()
+describe("record_success", function()
     it("closes circuit if circuit was half-open", function()
         local c = circuit.new({ failure_threshold = 1 })
         c.state = c.HALF_OPEN
-        c:process_succeeded_request()
+        c:record_success()
         assert.is_equal(c.state, c.CLOSED)
     end)
 end)

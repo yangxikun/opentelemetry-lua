@@ -58,7 +58,7 @@ function _M.record_failure(self)
     end
 end
 
-function _M.process_succeeded_request(self)
+function _M.record_success(self)
     if self.state == self.CLOSED then
         return
     end
