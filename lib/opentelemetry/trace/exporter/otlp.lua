@@ -2,9 +2,10 @@ local encoder = require("opentelemetry.trace.exporter.encoder")
 local pb = require("opentelemetry.trace.exporter.pb")
 local otel_global = require("opentelemetry.global")
 local util = require("opentelemetry.util")
-local RETRY_LIMIT = 3
+local BACKOFF_RETRY_LIMIT = 3
 local DEFAULT_TIMEOUT_MS = 10000
 local exporter_request_duration_metric = "otel.otlp_exporter.request_duration"
+local circuit = require("opentelemetry.trace.exporter.circuit")
 
 local _M = {
 }
@@ -13,10 +14,14 @@ local mt = {
     __index = _M
 }
 
-function _M.new(http_client, timeout_ms)
+function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms, circuit_open_threshold)
     local self = {
         client = http_client,
         timeout_ms = timeout_ms or DEFAULT_TIMEOUT_MS,
+        circuit = circuit.new({
+            reset_timeout_ms = circuit_reset_timeout_ms,
+            failure_threshold = circuit_open_threshold
+        })
     }
     return setmetatable(self, mt)
 end
@@ -36,26 +41,36 @@ local function call_collector(exporter, pb_encoded_body)
     local res
     local res_error
 
-    while failures < RETRY_LIMIT do
-        if util.gettimeofday_ms() - start_time_ms > exporter.timeout_ms then
+    while failures < BACKOFF_RETRY_LIMIT do
+        local current_time = util.gettimeofday_ms()
+        if current_time - start_time_ms > exporter.timeout_ms then
             local err_message = "Collector retries timed out (timeout " .. exporter.timeout_ms .. ")"
             ngx.log(ngx.WARN, err_message)
             return false, err_message
         end
 
-        local before_time = util.gettimeofday_ms()
+        if not exporter.circuit:should_make_request() then
+            ngx.log(ngx.INFO, "Circuit breaker is open")
+            return false, "Circuit breaker is open"
+        end
+
+        -- Make request
         res, res_error = exporter.client:do_request(pb_encoded_body)
         local after_time = util.gettimeofday_ms()
         otel_global.metrics_reporter:record_value(
-            exporter_request_duration_metric, after_time - before_time)
+            exporter_request_duration_metric, after_time - current_time)
+
         if not res then
+            exporter.circuit:record_failure()
             failures = failures + 1
             ngx.sleep(util.random_float(2 ^ failures))
             ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
         else
+            exporter.circuit:record_success()
             return true, nil
         end
     end
+
     return false, res_error or "unknown"
 end
 

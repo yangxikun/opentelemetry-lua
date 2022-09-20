@@ -28,6 +28,7 @@ build = {
        ["opentelemetry.trace.batch_span_processor"] = "lib/opentelemetry/trace/batch_span_processor.lua",
        ["opentelemetry.trace.event"] = "lib/opentelemetry/trace/event.lua",
        ["opentelemetry.trace.exporter.http_client"] = "lib/opentelemetry/trace/exporter/http_client.lua",
+       ["opentelemetry.trace.exporter.circuit"] = "lib/opentelemetry/trace/exporter/circuit.lua",
        ["opentelemetry.trace.exporter.console"] = "lib/opentelemetry/trace/exporter/console.lua",
        ["opentelemetry.trace.exporter.encoder"] = "lib/opentelemetry/trace/exporter/encoder.lua",
        ["opentelemetry.trace.exporter.otlp"] = "lib/opentelemetry/trace/exporter/otlp.lua",
