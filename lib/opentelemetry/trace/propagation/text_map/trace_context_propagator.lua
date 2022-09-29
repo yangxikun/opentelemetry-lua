@@ -87,7 +87,7 @@ local function validate_member_value(value)
         [[^([ !"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~]*[!"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~])%s*$]])
 end
 
-local function parse_trace_state(trace_state)
+function _M.parse_trace_state(trace_state)
     if not trace_state then
         return ""
     end
@@ -197,7 +197,7 @@ function _M:extract(context, carrier, getter)
         return context
     end
 
-    local trace_state = parse_trace_state(getter.get(carrier, tracestate_header))
+    local trace_state = _M.parse_trace_state(getter.get(carrier, tracestate_header))
 
     return context:with_span_context(span_context_new(trace_id, span_id, trace_flags, trace_state, true))
 end
