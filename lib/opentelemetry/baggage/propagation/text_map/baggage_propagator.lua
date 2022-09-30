@@ -68,7 +68,7 @@ function _M:extract(context, carrier, getter)
     getter = getter or self.text_map_getter
     local baggage_string = getter.get(carrier, baggage_header)
     if not baggage_string then
-        return context.new(context.entries)
+        return context
     else
         baggage_string = util.decode_percent_encoded_string(baggage_string)
     end
