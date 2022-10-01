@@ -67,7 +67,12 @@ func main() {
 	defer shutdown()
 
 	tracer := otel.Tracer("test-client-tracer")
-	ctx, span := tracer.Start(context.Background(), "test-client-span", trace.WithSpanKind(trace.SpanKindClient))
+	traceState, err := trace.ParseTraceState("trace-state-example-key=trace-state-example-val")
+	handleErr(err, "parse trace state failed")
+	ctx := trace.ContextWithSpanContext(context.Background(), trace.NewSpanContext(trace.SpanContextConfig{
+		TraceState: traceState,
+	}))
+	ctx, span := tracer.Start(ctx, "test-client-span", trace.WithSpanKind(trace.SpanKindClient))
 	defer span.End()
 
 	span.SetStatus(codes.Error, "client side failed")
