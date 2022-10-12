@@ -4,11 +4,27 @@ title: Changelog
 
 ## Table of Contents
 
+- [0.2-1](#021)
 - [0.2-0](#020)
 - [0.1-3](#013)
 - [0.1-2](#012)
 - [0.1-1](#011)
 - [0.1-0](#010)
+
+## 0.2-1
+
+### Change
+
+- enhancement: trace exporter add exponential backoff and circuit breaker when failed to exporting spans
+- feature: add console exporter for debugging
+- feature: support [baggage](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/baggage/api.md)
+- feature: add metrics reporter
+- feature: add tracestate to exports
+- breaking: refactor context, `context.attach` will return a token, and need to be passed to `context.detach`
+
+### Bugfix
+
+- fix data race in batch_span_processor
 
 ## 0.2-0
 
