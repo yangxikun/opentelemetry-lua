@@ -38,7 +38,7 @@ function _M.for_export(span)
     return {
         trace_id = span.ctx.trace_id,
         span_id = span.ctx.span_id,
-        trace_state = "",
+        trace_state = span.ctx.trace_state,
         parent_span_id = span.parent_ctx.span_id or "",
         name = span.name,
         kind = span.kind,
