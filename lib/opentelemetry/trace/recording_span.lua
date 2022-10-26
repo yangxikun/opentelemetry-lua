@@ -80,14 +80,19 @@ function _M.set_attributes(self, ...)
 end
 
 ------------------------------------------------------------------
--- `end` is key word, so we use finish
+-- Finish the span. `end` is key word, so we use "finish."
+-- See: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md#end
+--
+-- @end_timestamp   end timestamp for span (nanoseconds). If not
+--                  supplied, span method will end at current
+--                  time.
 ------------------------------------------------------------------
-function _M.finish(self)
+function _M.finish(self, end_timestamp)
     if not self:is_recording() then
         return
     end
 
-    self.end_time = util.time_nano()
+    self.end_time = end_timestamp or util.time_nano()
     for _, sp in ipairs(self.tracer.provider.span_processors) do
         sp:on_end(self)
     end
