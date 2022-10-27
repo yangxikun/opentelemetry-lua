@@ -10,14 +10,14 @@ function _M.new()
 end
 
 ------------------------------------------------------------------
--- Extract tracing header from nginx request
+-- Extract tracing header from nginx request.
 --
--- @param carrier (should be ngx.req)
+-- @param carrier (should be ngx)
 -- @param key HTTP header to get
 -- @return value of HTTP header
 ------------------------------------------------------------------
 function _M.get(carrier, key)
-    return carrier.get_headers()[key]
+    return carrier.req.get_headers()[key]
 end
 
 return _M

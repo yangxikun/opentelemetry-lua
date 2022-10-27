@@ -83,7 +83,7 @@ describe("baggage propagator", function()
             ctx = ctx:inject_baggage(bgg)
             local baggage_propagator = baggage_propagator.new()
             baggage_propagator:inject(ctx, carrier)
-            assert.is_same("userId=Am%C3%A9lie;mycoolmetadata;hi=mom", carrier.get_headers()["baggage"])
+            assert.is_same("userId=Am%C3%A9lie;mycoolmetadata;hi=mom", carrier.req.get_headers()["baggage"])
         end)
 
         it("injects multiple values into header", function()
@@ -103,7 +103,7 @@ describe("baggage propagator", function()
             local match = false
             for k, v in pairs({ "userId=Am%C3%A9lie;mycoolmetadata;hi=mom,foo=bar",
                 "foo=bar,userId=Am%C3%A9lie;mycoolmetadata;hi=mom" }) do
-                if carrier.get_headers()["baggage"] == v then
+                if carrier.req.get_headers()["baggage"] == v then
                     match = true
                     break
                 end

@@ -27,9 +27,8 @@ describe("text map propagator", function()
                 span_context.trace_id, span_context.span_id, span_context.trace_flags)
 
             -- make sure we set_header in the setter
-            spy.on(carrier, "set_header")
             tmp:inject(new_ctx, carrier)
-            assert.spy(carrier.set_header).was.called_with("traceparent", traceparent)
+            assert(carrier.req.get_headers()["traceparent"], traceparent)
         end)
     end)
 

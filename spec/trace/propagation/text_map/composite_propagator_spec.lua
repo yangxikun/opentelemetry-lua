@@ -35,11 +35,11 @@ describe("composite propagator", function()
         it("should add headers for each propagator", function()
             cp:inject(new_ctx, carrier)
             assert.are.same(
-                carrier.get_headers()["traceparent"],
+                carrier.req.get_headers()["traceparent"],
                 traceparent
             )
             assert.are.same(
-                carrier.get_headers()["baggage"],
+                carrier.req.get_headers()["baggage"],
                 "foo=bar;ok"
             )
         end)

@@ -5,8 +5,8 @@
 --------------------------------------------------------------------------------
 
 local baggage = require("opentelemetry.baggage")
-local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter")
-local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
+local text_map_getter = require("opentelemetry.trace.propagation.text_map.request_header_getter")
+local text_map_setter = require("opentelemetry.trace.propagation.text_map.request_header_setter")
 local util = require("opentelemetry.util")
 
 local _M = {
