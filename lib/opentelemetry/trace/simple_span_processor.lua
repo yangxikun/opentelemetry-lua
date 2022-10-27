@@ -34,6 +34,7 @@ function _M.on_end(self, span)
 end
 
 function _M.shutdown(self)
+    self.closed = true
     self.exporter:shutdown()
 end
 
