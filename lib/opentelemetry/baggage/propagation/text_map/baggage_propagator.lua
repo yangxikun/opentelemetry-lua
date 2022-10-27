@@ -61,7 +61,7 @@ end
 -- Extract baggage from HTTP request headers.
 --
 -- @context             current context
--- @carrier             ngx.req
+-- @carrier             ngx
 -- @return              new context with baggage associated
 --------------------------------------------------------------------------------
 function _M:extract(context, carrier, getter)

@@ -280,7 +280,7 @@ local trace_context_propagator = require("opentelemetry.trace.propagation.text_m
 -- @carrier             get traceparent and tracestate
 -- @return              new context
 ------------------------------------------------------------------
-local context = trace_context_propagator.extract(context, ngx.req)
+local context = trace_context_propagator.extract(context, ngx)
 ```
 
 ### Span

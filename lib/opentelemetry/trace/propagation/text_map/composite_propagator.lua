@@ -27,7 +27,7 @@ end
 -- Uses the propagators to inject context into carrier in sequence.
 --
 -- @param context      context module
--- @param carrier      carrier (e.g. ngx.req)
+-- @param carrier      carrier (e.g. ngx)
 --------------------------------------------------------------------------------
 function _M:inject(context, carrier)
     for i = 1, #self.propagators do
@@ -39,7 +39,7 @@ end
 -- Uses the propagators to extract context into carrier in sequence.
 --
 -- @param context      context module
--- @param carrier      carrier (e.g. ngx.req)
+-- @param carrier      carrier (e.g. ngx)
 --------------------------------------------------------------------------------
 function _M:extract(context, carrier)
     local new_ctx = context
