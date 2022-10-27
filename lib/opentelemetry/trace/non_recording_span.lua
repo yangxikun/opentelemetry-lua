@@ -27,7 +27,7 @@ end
 function _M.set_attributes()
 end
 
-function _M.finish()
+function _M.finish(_self, _end_timestamp)
 end
 
 function _M.record_error()
