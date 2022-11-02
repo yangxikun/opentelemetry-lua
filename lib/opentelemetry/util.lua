@@ -138,6 +138,21 @@ local function table_as_string (tt, indent, done)
   end
 end
 
+local function split(inputstr, sep)
+  if sep == nil then
+    sep = "%s"
+  end
+  local t = {}
+  for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    table.insert(t, str)
+  end
+  return t
+end
+
+local function trim(s)
+  return s:match '^%s*(.*%S)' or ''
+end
+
 _M.ngx_time_nano = ngx_time_nano
 _M.gettimeofday = ffi_gettimeofday
 _M.gettimeofday_ms = gettimeofday_ms
@@ -146,7 +161,9 @@ _M.random_float = random_float
 _M.shallow_copy_table = shallow_copy_table
 _M.decode_percent_encoded_string = decode_percent_encoded_string
 _M.percent_encode_baggage_string = percent_encode_baggage_string
+_M.split = split
 _M.table_as_string = table_as_string
+_M.trim = trim
 
 -- default time function, will be used in this SDK
 -- change it if needed

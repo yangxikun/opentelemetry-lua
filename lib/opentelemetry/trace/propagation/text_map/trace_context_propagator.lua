@@ -1,7 +1,7 @@
 local span_context_new = require("opentelemetry.trace.span_context").new
 local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter")
 local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
-local empty_span_context = span_context_new()
+local util = require("opentelemetry.util")
 
 local _M = {
 }
@@ -46,17 +46,6 @@ function _M:inject(context, carrier, setter)
     if span_context.trace_state then
         setter.set(carrier, tracestate_header, span_context.trace_state)
     end
-end
-
-local function split(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = {}
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        table.insert(t, str)
-    end
-    return t
 end
 
 local function validate_member_key(key)
@@ -136,17 +125,13 @@ local function validate_span_id(span_id)
         and string.match(span_id, "^[0-9a-f]+$")
 end
 
-local function trim(s)
-    return s:match '^%s*(.*%S)' or ''
-end
-
 -- Traceparent: 00-982d663bad6540dece76baf15dd2aa7f-6827812babd449d1-01
 --              version-trace-id-parent-id-trace-flags
 local function parse_trace_parent(trace_parent)
     if type(trace_parent) ~= "string" or trace_parent == "" then
         return
     end
-    local ret = split(trim(trace_parent), "-")
+    local ret = util.split(util.trim(trace_parent), "-")
     if #ret < 4 then
         return
     end
