@@ -1,4 +1,4 @@
-local span_context_new = require("opentelemetry.trace.span_context").new
+local span_context = require("opentelemetry.trace.span_context")
 local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter")
 local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
 local util = require("opentelemetry.util")
@@ -15,8 +15,8 @@ local mt = {
 local traceparent_header = "traceparent"
 local tracestate_header  = "tracestate"
 
-local invalid_trace_id = '00000000000000000000000000000000'
-local invalid_span_id = '0000000000000000'
+local invalid_trace_id = span_context.INVALID_TRACE_ID
+local invalid_span_id = span_context.INVALID_SPAN_ID
 
 function _M.new()
     return setmetatable(
@@ -184,7 +184,7 @@ function _M:extract(context, carrier, getter)
 
     local trace_state = _M.parse_trace_state(getter.get(carrier, tracestate_header))
 
-    return context:with_span_context(span_context_new(trace_id, span_id, trace_flags, trace_state, true))
+    return context:with_span_context(span_context.new(trace_id, span_id, trace_flags, trace_state, true))
 end
 
 function _M.fields()
