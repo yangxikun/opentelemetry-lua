@@ -33,7 +33,7 @@ local function new_span(self, context, name, config)
     end
 
     local sampling_result = self.provider.sampler:should_sample({
-        parent_ctx     = span_context,
+        parent_ctx     = context,
         trace_id       = trace_id,
         name           = name,
         kind           = span_kind.validate(config.kind),
@@ -61,7 +61,7 @@ end
 ------------------------------------------------------------------
 -- create a span.
 --
--- @span_ctx            context with parent span
+-- @context             context with parent span
 -- @span_name           span name
 -- @span_start_config   [optional]
 --                          span_start_config.kind: opentelemetry.trace.span_kind.*

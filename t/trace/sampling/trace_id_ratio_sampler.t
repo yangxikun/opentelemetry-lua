@@ -13,11 +13,11 @@ __DATA__
 location = /t {
     content_by_lua_block {
         local trace_id_ratio_sampler_new = require("opentelemetry.trace.sampling.trace_id_ratio_sampler").new
-        local span_context_new = require("opentelemetry.trace.span_context").new
+        local context_new = require("opentelemetry.context").new
 
         ngx.say("test fraction = 0")
         local result = trace_id_ratio_sampler_new(0):should_sample({
-            parent_ctx = span_context_new(),
+            parent_ctx = context_new(),
             trace_id = "00000000000000000000000000000000",
         })
         if result:is_sampled() then
@@ -27,7 +27,7 @@ location = /t {
 
         ngx.say("test fraction = 1")
         local result = trace_id_ratio_sampler_new(1):should_sample({
-            parent_ctx = span_context_new(),
+            parent_ctx = context_new(),
             trace_id = "ffffffff000000000000000000000000",
         })
         if not result:is_sampled() then
@@ -37,7 +37,7 @@ location = /t {
 
         ngx.say("test fraction = 0.5")
         local result = trace_id_ratio_sampler_new(0.5):should_sample({
-            parent_ctx = span_context_new(),
+            parent_ctx = context_new(),
             trace_id = "7fffffff000000000000000000000000",
         })
         if not result:is_sampled() then
@@ -47,7 +47,7 @@ location = /t {
 
         ngx.say("test fraction = 0.5")
         local result = trace_id_ratio_sampler_new(0.5):should_sample({
-            parent_ctx = span_context_new(),
+            parent_ctx = context_new(),
             trace_id = "80000000000000000000000000000000",
         })
         if result:is_sampled() then
