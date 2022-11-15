@@ -15,10 +15,11 @@ location = /t {
         local always_on_sampler = require("opentelemetry.trace.sampling.always_on_sampler").new()
         local parent_base_sampler = require("opentelemetry.trace.sampling.parent_base_sampler").new(always_on_sampler)
         local span_context_new = require("opentelemetry.trace.span_context").new
+        local context_new = require("opentelemetry.context").new
 
         ngx.say("test invalid parameters.parent_ctx")
         local result = parent_base_sampler:should_sample({
-            parent_ctx = span_context_new()
+            parent_ctx = context_new()
         })
         if not result:is_sampled() then
             ngx.say("expect result:is_sampled() == true")
@@ -27,7 +28,7 @@ location = /t {
 
         ngx.say("test parameters.parent_ctx{remote = true}")
         local result = parent_base_sampler:should_sample({
-            parent_ctx = span_context_new("trace_id", "span_id", 0, "trace_state", true)
+            parent_ctx = context_new():with_span_context(span_context_new("trace_id", "span_id", 0, "trace_state", true))
         })
         if result:is_sampled() then
             ngx.say("expect result:is_sampled() == false")
@@ -36,7 +37,7 @@ location = /t {
 
         ngx.say("test parameters.parent_ctx{remote = true, sampled = true}")
         local result = parent_base_sampler:should_sample({
-            parent_ctx = span_context_new("trace_id", "span_id", 1, "trace_state", true)
+            parent_ctx = context_new():with_span_context(span_context_new("trace_id", "span_id", 1, "trace_state", true))
         })
         if not result:is_sampled() then
             ngx.say("expect result:is_sampled() == true")
@@ -45,7 +46,7 @@ location = /t {
 
         ngx.say("test parameters.parent_ctx{remote = false, sampled = true}")
         local result = parent_base_sampler:should_sample({
-            parent_ctx = span_context_new("trace_id", "span_id", 1, "trace_state", true)
+            parent_ctx = context_new():with_span_context(span_context_new("trace_id", "span_id", 1, "trace_state", true))
         })
         if not result:is_sampled() then
             ngx.say("expect result:is_sampled() == true")
@@ -54,7 +55,7 @@ location = /t {
 
         ngx.say("test parameters.parent_ctx{remote = false, sampled = false}")
         local result = parent_base_sampler:should_sample({
-            parent_ctx = span_context_new("trace_id", "span_id", 0, "trace_state", false)
+            parent_ctx = context_new():with_span_context(span_context_new("trace_id", "span_id", 0, "trace_state", false))
         })
         if result:is_sampled() then
             ngx.say("expect result:is_sampled() == false")

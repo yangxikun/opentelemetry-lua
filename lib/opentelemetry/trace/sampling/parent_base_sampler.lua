@@ -21,19 +21,20 @@ function _M.new(root)
 end
 
 function _M.should_sample(self, parameters)
-    local parent_ctx = parameters.parent_ctx
-    if parent_ctx:is_valid() then
-        if parent_ctx:is_remote() then
-            if parent_ctx:is_sampled() then
-                return result_new(2, parameters.parent_ctx.trace_state)
+    local parent_span_ctx = parameters.parent_ctx:span_context()
+    local trace_state = parent_span_ctx.trace_state
+    if parent_span_ctx:is_valid() then
+        if parent_span_ctx:is_remote() then
+            if parent_span_ctx:is_sampled() then
+                return result_new(2, trace_state)
             end
-            return result_new(0, parameters.parent_ctx.trace_state)
+            return result_new(0, trace_state)
         end
 
-        if parent_ctx:is_sampled() then
-            return result_new(2, parameters.parent_ctx.trace_state)
+        if parent_span_ctx:is_sampled() then
+            return result_new(2, trace_state)
         end
-        return result_new(0, parameters.parent_ctx.trace_state)
+        return result_new(0, trace_state)
     end
 
     return self.root:should_sample(parameters)

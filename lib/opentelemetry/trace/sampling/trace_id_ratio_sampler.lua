@@ -32,7 +32,7 @@ function _M.new(fraction)
 end
 
 function _M.should_sample(self, parameters)
-    local parent_ctx = parameters.parent_ctx
+    local parent_span_ctx = parameters.parent_ctx:span_context()
     local n = 0
     local trace_id = parameters.trace_id
     for i = 1, 8, 2 do
@@ -40,10 +40,10 @@ function _M.should_sample(self, parameters)
     end
 
     if n < self.trace_id_upper_bound then
-        return result_new(2, parent_ctx.trace_state)
+        return result_new(2, parent_span_ctx.trace_state)
     end
 
-    return result_new(0, parent_ctx.trace_state)
+    return result_new(0, parent_span_ctx.trace_state)
 end
 
 function _M.description(self)

@@ -12,7 +12,7 @@ function _M.new()
 end
 
 function _M.should_sample(self, parameters)
-    return result_new(2, parameters.parent_ctx.trace_state)
+    return result_new(2, parameters.parent_ctx:span_context().trace_state)
 end
 
 function _M.description(self)
