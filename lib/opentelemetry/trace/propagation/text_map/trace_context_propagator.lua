@@ -1,4 +1,5 @@
 local span_context = require("opentelemetry.trace.span_context")
+local tracestate = require("opentelemetry.trace.tracestate")
 local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter")
 local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
 local util = require("opentelemetry.util")
@@ -44,75 +45,8 @@ function _M:inject(context, carrier, setter)
         span_context.trace_id, span_context.span_id, span_context.trace_flags)
     setter.set(carrier, traceparent_header, traceparent)
     if span_context.trace_state then
-        setter.set(carrier, tracestate_header, span_context.trace_state)
+        setter.set(carrier, tracestate_header, span_context.trace_state:as_string())
     end
-end
-
-local function validate_member_key(key)
-    if #key > 256 then
-        return nil
-    end
-
-    local valid_key = string.match(key, [[^%s*([a-z][_0-9a-z%-*/]*)$]])
-    if not valid_key then
-        local tenant_id, system_id = string.match(key, [[^%s*([a-z0-9][_0-9a-z%-*/]*)@([a-z][_0-9a-z%-*/]*)$]])
-        if not tenant_id or not system_id then
-            return nil
-        end
-        if #tenant_id > 241 or #system_id > 14 then
-            return nil
-        end
-        return tenant_id .. "@" .. system_id
-    end
-
-    return valid_key
-end
-
-local function validate_member_value(value)
-    if #value > 256 then
-        return nil
-    end
-    return string.match(value,
-        [[^([ !"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~]*[!"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~])%s*$]])
-end
-
-function _M.parse_trace_state(trace_state)
-    if not trace_state then
-        return ""
-    end
-    if type(trace_state) == "string" then
-        trace_state = { trace_state }
-    end
-
-    local new_trace_state = {}
-    local members_count = 0
-    for _, item in ipairs(trace_state) do
-        for member in string.gmatch(item, "([^,]+)") do
-            if member ~= "" then
-                local start_pos, end_pos = string.find(member, "=", 1, true)
-                if not start_pos or start_pos == 1 then
-                    return ""
-                end
-                local key = validate_member_key(string.sub(member, 1, start_pos - 1))
-                if not key then
-                    return ""
-                end
-
-                local value = validate_member_value(string.sub(member, end_pos + 1))
-                if not value then
-                    return ""
-                end
-
-                members_count = members_count + 1
-                if members_count > 32 then
-                    return ""
-                end
-                table.insert(new_trace_state, key .. "=" .. value)
-            end
-        end
-    end
-
-    return table.concat(new_trace_state, ",")
 end
 
 local function validate_trace_id(trace_id)
@@ -182,7 +116,7 @@ function _M:extract(context, carrier, getter)
         return context
     end
 
-    local trace_state = _M.parse_trace_state(getter.get(carrier, tracestate_header))
+    local trace_state = tracestate.parse_tracestate(getter.get(carrier, tracestate_header))
 
     return context:with_span_context(span_context.new(trace_id, span_id, trace_flags, trace_state, true))
 end

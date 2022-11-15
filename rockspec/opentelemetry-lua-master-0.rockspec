@@ -54,6 +54,7 @@ build = {
        ["opentelemetry.trace.span_status"] = "lib/opentelemetry/trace/span_status.lua",
        ["opentelemetry.trace.tracer"] = "lib/opentelemetry/trace/tracer.lua",
        ["opentelemetry.trace.tracer_provider"] = "lib/opentelemetry/trace/tracer_provider.lua",
+       ["opentelemetry.trace.tracestate"] = "lib/opentelemetry/trace/tracestate.lua",
        ["opentelemetry.baggage"] = "lib/opentelemetry/baggage.lua",
        ["opentelemetry.baggage.propagation.text_map.baggage_propagator"] = "lib/opentelemetry/baggage/propagation/text_map/baggage_propagator.lua",
        ["opentelemetry.util"] = "lib/opentelemetry/util.lua"
