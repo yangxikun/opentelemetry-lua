@@ -41,7 +41,7 @@ describe("is_valid", function()
         assert.is_true(ts:get("a1") == "")
         assert.is_true(ts:get("one") == "more")
         -- Newest elem is prepended
-        assert.is_true(ts[1] == "one=more")
+        assert.is_true(ts[1][1] == "one")
 
     end)
 end)

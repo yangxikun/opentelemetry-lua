@@ -76,7 +76,7 @@ function _M.parse_tracestate(tracestate)
                 if members_count > _M.MAX_ENTRIES then
                     return _M.new({})
                 end
-                table.insert(new_tracestate, key .. "=" .. value)
+                table.insert(new_tracestate, {key, value})
             end
         end
     end
@@ -100,7 +100,7 @@ function _M.set(self, key, value)
     if #self >= _M.MAX_ENTRIES then
         table.remove(self)
     end
-    table.insert(self, 1, key .. "=" .. value)
+    table.insert(self, 1, {key, value})
     return self
 end
 
@@ -110,11 +110,10 @@ end
 -- @return              value
 --------------------------------------------------------------------------------
 function _M.get(self, key)
-    for i, item in ipairs(self) do
-        local start_pos, end_pos = string.find(item, "=", 1, true)
-        local ckey = string.sub(item, 1, start_pos - 1)
+    for _, item in ipairs(self) do
+        local ckey = item[1]
         if ckey == key then
-            return string.sub(item, end_pos + 1)
+            return item[2]
         end
     end
     return ""
@@ -128,8 +127,7 @@ end
 function _M.del(self, key)
     local index = 0
     for i, item in ipairs(self) do
-        local start_pos, _ = string.find(item, "=", 1, true)
-        local ckey = string.sub(item, 1, start_pos - 1)
+        local ckey = item[1]
         if ckey == key then
             index = i
             break
@@ -147,7 +145,11 @@ end
 -- @return              string
 --------------------------------------------------------------------------------
 function _M.as_string(self)
-    return table.concat(self, ",")
+    local output = {}
+    for _, item in ipairs(self) do
+        table.insert(output, item[1] .. "=" .. item[2])
+    end
+    return table.concat(output, ",")
 end
 
 return _M
