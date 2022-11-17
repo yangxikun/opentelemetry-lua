@@ -28,9 +28,13 @@ function _M.new(span_processors, opts)
     if not opts then
         opts = {}
     end
-    span_processors = span_processors or {}
-    if type(span_processors) ~= "table" then
+
+    -- Handle nil span processors and users that pass single
+    -- span processor not wrapped in a table.
+    if span_processors and #span_processors == 0 then
         span_processors = { span_processors }
+    elseif span_processors == nil then
+        span_processors = {}
     end
 
     local r = resource.new(attr.string("telemetry.sdk.language", "lua"),
