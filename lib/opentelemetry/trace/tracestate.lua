@@ -36,8 +36,9 @@ local function validate_member_value(value)
         [[^([ !"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~]*[!"#$%%&'()*+%-./0-9:;<>?@A-Z[\%]^_`a-z{|}~])%s*$]])
 end
 
-function _M.new(entries)
-    return setmetatable(entries, mt)
+function _M.new(values)
+    local self = { values = values }
+    return setmetatable(self, mt)
 end
 
 --------------------------------------------------------------------------------
@@ -55,25 +56,28 @@ function _M.parse_tracestate(tracestate)
 
     local new_tracestate = {}
     local members_count = 0
+    local error_message = "failed to parse tracestate"
     for _, item in ipairs(tracestate) do
         for member in string.gmatch(item, "([^,]+)") do
             if member ~= "" then
                 local start_pos, end_pos = string.find(member, "=", 1, true)
                 if not start_pos or start_pos == 1 then
+                    ngx.log(ngx.WARN, error_message)
                     return _M.new({})
                 end
                 local key = validate_member_key(string.sub(member, 1, start_pos - 1))
                 if not key then
+                    ngx.log(ngx.WARN, error_message)
                     return _M.new({})
                 end
-
                 local value = validate_member_value(string.sub(member, end_pos + 1))
                 if not value then
+                    ngx.log(ngx.WARN, error_message)
                     return _M.new({})
                 end
-
                 members_count = members_count + 1
                 if members_count > _M.MAX_ENTRIES then
+                    ngx.log(ngx.WARN, error_message)
                     return _M.new({})
                 end
                 table.insert(new_tracestate, {key, value})
@@ -93,14 +97,15 @@ function _M.set(self, key, value)
     if not validate_member_key(key) then
         return self
     end
-    self:del(key)
     if not validate_member_value(value) then
         return self
     end
-    if #self >= _M.MAX_ENTRIES then
-        table.remove(self)
+    self:del(key)
+    if #self.values >= _M.MAX_ENTRIES then
+        table.remove(self.values)
+        ngx.log(ngx.WARN, "tracestate max values exceeded, removing rightmost entry")
     end
-    table.insert(self, 1, {key, value})
+    table.insert(self.values, 1, {key, value})
     return self
 end
 
@@ -110,7 +115,7 @@ end
 -- @return              value
 --------------------------------------------------------------------------------
 function _M.get(self, key)
-    for _, item in ipairs(self) do
+    for _, item in ipairs(self.values) do
         local ckey = item[1]
         if ckey == key then
             return item[2]
@@ -126,7 +131,7 @@ end
 --------------------------------------------------------------------------------
 function _M.del(self, key)
     local index = 0
-    for i, item in ipairs(self) do
+    for i, item in ipairs(self.values) do
         local ckey = item[1]
         if ckey == key then
             index = i
@@ -134,7 +139,7 @@ function _M.del(self, key)
         end
     end
     if index ~= 0 then
-        table.remove(self, index)
+        table.remove(self.values, index)
     end
     return self
 end
@@ -146,7 +151,7 @@ end
 --------------------------------------------------------------------------------
 function _M.as_string(self)
     local output = {}
-    for _, item in ipairs(self) do
+    for _, item in ipairs(self.values) do
         table.insert(output, item[1] .. "=" .. item[2])
     end
     return table.concat(output, ",")
