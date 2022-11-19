@@ -16,23 +16,33 @@ local mt = {
 ------------------------------------------------------------------
 -- create a tracer provider.
 --
--- @span_processor      [optional] span_processor
+-- @span_processor      [optional] span_processors. Should be table
+--                      but we allow for a single span_processor
+--                      for backwards compatibility.
 -- @opts                [optional] config
 --                          opts.sampler: opentelemetry.trace.sampling.*, default parent_base_sampler
 --                          opts.resource
 -- @return              tracer provider factory
 ------------------------------------------------------------------
-function _M.new(span_processor, opts)
+function _M.new(span_processors, opts)
     if not opts then
         opts = {}
     end
 
+    -- Handle nil span processors and users that pass single
+    -- span processor not wrapped in a table.
+    if span_processors and #span_processors == 0 then
+        span_processors = { span_processors }
+    elseif span_processors == nil then
+        span_processors = {}
+    end
+
     local r = resource.new(attr.string("telemetry.sdk.language", "lua"),
-                            attr.string("telemetry.sdk.name", "opentelemetry-lua"),
-                            attr.string("telemetry.sdk.version", "0.1.1"))
+        attr.string("telemetry.sdk.name", "opentelemetry-lua"),
+        attr.string("telemetry.sdk.version", "0.1.1"))
 
     local self = {
-        span_processors = span_processor and {span_processor} or {},
+        span_processors = span_processors,
         sampler = opts.sampler or parent_base_sampler_new(always_on_sampler_new()),
         resource = resource.merge(opts.resource, r),
         id_generator = id_generator,
@@ -84,7 +94,7 @@ function _M.register_span_processor(self, sp)
 end
 
 function _M.set_span_processors(self, ...)
-    self.span_processors = {...}
+    self.span_processors = { ... }
 end
 
 return _M
