@@ -13,7 +13,7 @@ function _M.new(tid, sid, trace_flags, trace_state, remote)
         trace_id    = tid,
         span_id     = sid,
         trace_flags = trace_flags,
-        trace_state = trace_state or tracestate.parse_tracestate(trace_state),
+        trace_state = trace_state or tracestate.new({}),
         remote      = remote,
     }
     return setmetatable(self, mt)
