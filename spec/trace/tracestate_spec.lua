@@ -45,6 +45,5 @@ describe("is_valid", function()
         assert.is_true(ts:get("one") == "more")
         -- Newest elem is prepended
         assert.is_true(ts.values[1][1] == "one")
-
     end)
 end)

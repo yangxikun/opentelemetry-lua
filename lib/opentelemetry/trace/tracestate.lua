@@ -50,6 +50,7 @@ function _M.parse_tracestate(tracestate)
     if not tracestate then
         return _M.new({})
     end
+    -- if there is only one tracestate header it comes in as a string, otherwise its a table
     if type(tracestate) == "string" then
         tracestate = { tracestate }
     end
