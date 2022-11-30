@@ -4,12 +4,22 @@ title: Changelog
 
 ## Table of Contents
 
+- [0.2-2](#022)
 - [0.2-1](#021)
 - [0.2-0](#020)
 - [0.1-3](#013)
 - [0.1-2](#012)
 - [0.1-1](#011)
 - [0.1-0](#010)
+
+## 0.2-2
+
+### Change
+
+- feature: add simple span processor
+- enhancement: allow users to specify multiple span processors
+- enhancement: allow user to specify end timestamp when finishing span
+- feature: add tracestate handling
 
 ## 0.2-1
 
