@@ -48,7 +48,7 @@ end
 -- Return current time in milliseconds (there are 1000 milliseconds in a
 -- microsecond
 --
--- @return current time in microseconds
+-- @return current time in milliseconds
 --------------------------------------------------------------------------------
 local function gettimeofday_ms()
   return ffi_gettimeofday() / 1000
