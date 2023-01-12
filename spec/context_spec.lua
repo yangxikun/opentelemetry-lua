@@ -21,6 +21,27 @@ describe("current", function()
     end)
 end)
 
+describe("with_span", function()
+    it("pushes entries of current context onto new span context", function()
+        otel_global.set_context_storage({})
+        local original_entries = { foo = "bar"}
+        local ctx_1 = context.new(original_entries)
+        ctx_1:attach()
+        assert.are.equal(ctx_1, context.current())
+        local fake_span = "hi"
+        local ctx_2 = ctx_1:with_span(fake_span)
+        assert.are.same(ctx_2.entries, original_entries)
+    end)
+
+    it("handles absence of current context gracefully", function()
+        otel_global.set_context_storage({})
+        assert.are.same({}, context.current().entries)
+        local fake_span = "hi"
+        local ctx = context:with_span(fake_span)
+        assert.are.same(ctx.entries, {})
+    end)
+end)
+
 describe("attach", function()
     it("creates new table at context_key if no table present and returns token matching length of stack after adding element", function()
         local ctx_storage = {}
