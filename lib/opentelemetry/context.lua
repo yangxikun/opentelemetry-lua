@@ -116,7 +116,7 @@ function _M.extract_baggage(self)
 end
 
 function _M.with_span(self, span)
-    return self.new(self.current().entries, span)
+    return self.new(self.entries, span)
 end
 
 function _M.with_span_context(self, span_context)

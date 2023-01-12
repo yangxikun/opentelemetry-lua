@@ -22,20 +22,15 @@ describe("current", function()
 end)
 
 describe("with_span", function()
-    it("pushes entries of current context onto new span context", function()
+    it("sets supplied entries on new context", function()
         otel_global.set_context_storage({})
-        local original_entries = { foo = "bar"}
-        local ctx_1 = context.new(original_entries)
-        ctx_1:attach()
-        assert.are.equal(ctx_1, context.current())
-        local fake_span = "hi"
-        local ctx_2 = ctx_1:with_span(fake_span)
-        assert.are.same(ctx_2.entries, original_entries)
+        local original_entries = { foo = "bar" }
+        local old_ctx = context.new(original_entries, "oldspan")
+        local ctx = old_ctx:with_span("myspan")
+        assert.are.same(ctx.entries, original_entries)
     end)
 
-    it("handles absence of current context gracefully", function()
-        otel_global.set_context_storage({})
-        assert.are.same({}, context.current().entries)
+    it("handles absence of entries arg gracefully", function()
         local fake_span = "hi"
         local ctx = context:with_span(fake_span)
         assert.are.same(ctx.entries, {})
