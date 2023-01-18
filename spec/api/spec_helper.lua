@@ -1,5 +1,4 @@
 ------------------------------------------------------------------------------------------------------------------------
--- Helps with api tests. Just loads the __OTEL global.
+-- Helps with api tests. Empty for now.
 -- @module spec_helper
 ------------------------------------------------------------------------------------------------------------------------
-require("lib.opentelemetry.api.opentelemetry")
