@@ -19,6 +19,7 @@ dependencies = {
 build = {
    type = "builtin",
    modules = {
+       ["opentelemetry.api.trace.span_status] = "lib/opentelemetry/api/trace/span_status.lua"
        ["opentelemetry.global"] = "lib/opentelemetry/global.lua",
        ["opentelemetry.context"] = "lib/opentelemetry/context.lua",
        ["opentelemetry.attribute"] = "lib/opentelemetry/attribute.lua",
