@@ -1,4 +1,6 @@
-local _M = require("opentelemetry.api.trace.span_status")
+local api_span_status = require("lib.opentelemetry.api.trace.span_status")
+
+local _M = api_span_status:new()
 
 -- returns a valid span status code
 function _M.validate(code)
