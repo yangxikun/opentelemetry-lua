@@ -1,3 +1,4 @@
+.PHONY: doc format api-test
 CONTAINER_ORCHESTRATOR ?= docker-compose
 CONTAINER_ORCHESTRATOR_EXEC_OPTIONS := $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS)
 
@@ -19,3 +20,12 @@ lua-unit-test:
 
 openresty-build:
 	$(CONTAINER_ORCHESTRATOR) build
+
+doc:
+	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'ldoc lib/opentelemetry/api'
+
+format:
+	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'lua-format -i lib/opentelemetry/api/**/*.lua && lua-format -i spec/api/**/*.lua'
+
+api-test:
+	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'busted -m "./lib/?.lua;./lib/?/?.lua;./lib/?/?/?.lua" ./spec/api'

@@ -28,3 +28,7 @@ jobs:
 
       - name: Run openresty-test-e2e
         run: make openresty-test-e2e CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
+
+      - name: Run api tests
+        run: make api-test
+
