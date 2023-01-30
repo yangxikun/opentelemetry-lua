@@ -1,4 +1,4 @@
-local api_span_status = require("lib.opentelemetry.api.trace.span_status")
+local api_span_status = require("opentelemetry.api.trace.span_status")
 
 local _M = api_span_status:new()
 

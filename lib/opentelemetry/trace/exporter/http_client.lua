@@ -19,8 +19,13 @@ function _M.new(address, timeout, headers)
     headers = headers or {}
     headers["Content-Type"] = "application/x-protobuf"
 
+    local uri = address .. "/v1/traces"
+    if address:find("http", 1, true) ~= 1 then
+        uri = "http://" .. uri
+    end
+
     local self = {
-        uri = "http://" .. address .. "/v1/traces",
+        uri = uri,
         timeout = timeout,
         headers = headers,
     }
