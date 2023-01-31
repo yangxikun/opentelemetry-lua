@@ -4,6 +4,7 @@ title: Changelog
 
 ## Table of Contents
 
+- [0.2-3](#023)
 - [0.2-2](#022)
 - [0.2-1](#021)
 - [0.2-0](#020)
@@ -11,6 +12,17 @@ title: Changelog
 - [0.1-2](#012)
 - [0.1-1](#011)
 - [0.1-0](#010)
+
+## 0.2-3
+
+### Change
+
+- feature: exporter client support https #60
+- breaking: span_status field name changed to uppercase #59
+
+### Bugfix
+
+- context.with_span need copy the parent context's entries #58
 
 ## 0.2-2
 
