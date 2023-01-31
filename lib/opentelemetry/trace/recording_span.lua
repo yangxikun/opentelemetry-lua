@@ -62,7 +62,7 @@ function _M.set_status(self, code, message)
         code = code,
         message = ""
     }
-    if code == span_status.error then
+    if code == span_status.ERROR then
         status.message = message
     end
 
