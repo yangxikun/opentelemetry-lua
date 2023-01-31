@@ -303,7 +303,7 @@ local ok = span:is_recording()
 -- @code             see opentelemetry.trace.span_status.*
 -- @message          error msg
 ------------------------------------------------------------------
-span:set_status(span_status.error, "error msg")
+span:set_status(span_status.ERROR, "error msg")
 
 -- set attributes
 span:set_attributes(attr.string("comapny", "bar"))
