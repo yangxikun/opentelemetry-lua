@@ -4,28 +4,28 @@
 -- module @semantic_conventions.trace.http
 local _M = {
     -- HTTP request method.
-    http_method = "http.method",
+    HTTP_METHOD = "http.method",
     -- [HTTP response status code](https://tools.ietf.org/html/rfc7231#section-6).
-    http_status_code = "http.status_code",
+    HTTP_STATUS_CODE = "http.status_code",
     -- Kind of HTTP protocol used.
-    http_flavor = "http.flavor",
+    HTTP_FLAVOR = "http.flavor",
     -- Value of the [HTTP User-Agent](https://www.rfc-editor.org/rfc/rfc9110.html#field.user-agent) header sent by the client.
-    http_user_agent = "http.user_agent",
+    HTTP_USER_AGENT = "http.user_agent",
     -- The size of the request payload body in bytes. This is the number of bytes transferred excluding headers and is often, but not always, present as the [Content-Length](https://www.rfc-editor.org/rfc/rfc9110.html#field.content-length) header. For requests using transport encoding, this should be the compressed size.
-    http_request_content_length = "http.request_content_length",
+    HTTP_REQUEST_CONTENT_LENGTH = "http.request_content_length",
     -- The size of the response payload body in bytes. This is the number of bytes transferred excluding headers and is often, but not always, present as the [Content-Length](https://www.rfc-editor.org/rfc/rfc9110.html#field.content-length) header. For requests using transport encoding, this should be the compressed size.
-    http_response_content_length = "http.response_content_length",
+    HTTP_RESPONSE_CONTENT_LENGTH = "http.response_content_length",
     -- Full HTTP request URL in the form `scheme://host[:port]/path?query[#fragment]`. Usually the fragment is not transmitted over HTTP, but if it is known, it should be included nevertheless.
-    http_url = "http.url",
+    HTTP_URL = "http.url",
     -- The ordinal number of request resending attempt (for any reason, including redirects).
-    http_resend_count = "http.resend_count",
+    HTTP_RESEND_COUNT = "http.resend_count",
     -- The URI scheme identifying the used protocol.
-    http_scheme = "http.scheme",
+    HTTP_SCHEME = "http.scheme",
     -- The full request target as passed in a HTTP request line or equivalent.
-    http_target = "http.target",
+    HTTP_TARGET = "http.target",
     -- The matched route (path template in the format used by the respective server framework). See note below
-    http_route = "http.route",
+    HTTP_ROUTE = "http.route",
     -- The IP address of the original client behind all proxies, if known (e.g. from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For)).
-    http_client_ip = "http.client_ip"
+    HTTP_CLIENT_IP = "http.client_ip"
 }
 return _M

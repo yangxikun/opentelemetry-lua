@@ -4,28 +4,28 @@
 -- module @semantic_conventions.trace.rpc
 local _M = {
     -- A string identifying the remoting system. See below for a list of well-known identifiers.
-    rpc_system = "rpc.system",
+    RPC_SYSTEM = "rpc.system",
     -- The full (logical) name of the service being called, including its package name, if applicable.
-    rpc_service = "rpc.service",
+    RPC_SERVICE = "rpc.service",
     -- The name of the (logical) method being called, must be equal to the $method part in the span name.
-    rpc_method = "rpc.method",
+    RPC_METHOD = "rpc.method",
     -- The [numeric status code](https://github.com/grpc/grpc/blob/v1.33.2/doc/statuscodes.md) of the gRPC request.
-    rpc_grpc_status_code = "rpc.grpc.status_code",
+    RPC_GRPC_STATUS_CODE = "rpc.grpc.status_code",
     -- Protocol version as in `jsonrpc` property of request/response. Since JSON-RPC 1.0 does not specify this, the value can be omitted.
-    rpc_jsonrpc_version = "rpc.jsonrpc.version",
+    RPC_JSONRPC_VERSION = "rpc.jsonrpc.version",
     -- `id` property of request or response. Since protocol allows id to be int, string, `null` or missing (for notifications), value is expected to be cast to string for simplicity. Use empty string in case of `null` value. Omit entirely if this is a notification.
-    rpc_jsonrpc_request_id = "rpc.jsonrpc.request_id",
+    RPC_JSONRPC_REQUEST_ID = "rpc.jsonrpc.request_id",
     -- `error.code` property of response if it is an error response.
-    rpc_jsonrpc_error_code = "rpc.jsonrpc.error_code",
+    RPC_JSONRPC_ERROR_CODE = "rpc.jsonrpc.error_code",
     -- `error.message` property of response if it is an error response.
-    rpc_jsonrpc_error_message = "rpc.jsonrpc.error_message",
+    RPC_JSONRPC_ERROR_MESSAGE = "rpc.jsonrpc.error_message",
     -- Whether this is a received or sent message.
-    message_type = "message.type",
+    MESSAGE_TYPE = "message.type",
     -- MUST be calculated as two different counters starting from `1` one for sent messages and one for received message.
-    message_id = "message.id",
+    MESSAGE_ID = "message.id",
     -- Compressed size of the message in bytes.
-    message_compressed_size = "message.compressed_size",
+    MESSAGE_COMPRESSED_SIZE = "message.compressed_size",
     -- Uncompressed size of the message in bytes.
-    message_uncompressed_size = "message.uncompressed_size"
+    MESSAGE_UNCOMPRESSED_SIZE = "message.uncompressed_size"
 }
 return _M

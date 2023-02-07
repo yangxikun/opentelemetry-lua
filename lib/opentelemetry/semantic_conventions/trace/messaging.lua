@@ -4,76 +4,76 @@
 -- module @semantic_conventions.trace.messaging
 local _M = {
     -- A value used by the messaging system as an identifier for the message, represented as a string.
-    messaging_message_id = "messaging.message.id",
+    MESSAGING_MESSAGE_ID = "messaging.message.id",
     -- The [conversation ID](#conversations) identifying the conversation to which the message belongs, represented as a string. Sometimes called "Correlation ID".
-    messaging_message_conversation_id = "messaging.message.conversation_id",
+    MESSAGING_MESSAGE_CONVERSATION_ID = "messaging.message.conversation_id",
     -- The (uncompressed) size of the message payload in bytes. Also use this attribute if it is unknown whether the compressed or uncompressed payload size is reported.
-    messaging_message_payload_size_bytes = "messaging.message.payload_size_bytes",
+    MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES = "messaging.message.payload_size_bytes",
     -- The compressed size of the message payload in bytes.
-    messaging_message_payload_compressed_size_bytes = "messaging.message.payload_compressed_size_bytes",
+    MESSAGING_MESSAGE_PAYLOAD_COMPRESSED_SIZE_BYTES = "messaging.message.payload_compressed_size_bytes",
     -- The message destination name
-    messaging_destination_name = "messaging.destination.name",
+    MESSAGING_DESTINATION_NAME = "messaging.destination.name",
     -- The kind of message destination
-    messaging_destination_kind = "messaging.destination.kind",
+    MESSAGING_DESTINATION_KIND = "messaging.destination.kind",
     -- Low cardinality representation of the messaging destination name
-    messaging_destination_template = "messaging.destination.template",
+    MESSAGING_DESTINATION_TEMPLATE = "messaging.destination.template",
     -- A boolean that is true if the message destination is temporary and might not exist anymore after messages are processed.
-    messaging_destination_temporary = "messaging.destination.temporary",
+    MESSAGING_DESTINATION_TEMPORARY = "messaging.destination.temporary",
     -- A boolean that is true if the message destination is anonymous (could be unnamed or have auto-generated name).
-    messaging_destination_anonymous = "messaging.destination.anonymous",
+    MESSAGING_DESTINATION_ANONYMOUS = "messaging.destination.anonymous",
     -- The message source name
-    messaging_source_name = "messaging.source.name",
+    MESSAGING_SOURCE_NAME = "messaging.source.name",
     -- The kind of message source
-    messaging_source_kind = "messaging.source.kind",
+    MESSAGING_SOURCE_KIND = "messaging.source.kind",
     -- Low cardinality representation of the messaging source name
-    messaging_source_template = "messaging.source.template",
+    MESSAGING_SOURCE_TEMPLATE = "messaging.source.template",
     -- A boolean that is true if the message source is temporary and might not exist anymore after messages are processed.
-    messaging_source_temporary = "messaging.source.temporary",
+    MESSAGING_SOURCE_TEMPORARY = "messaging.source.temporary",
     -- A boolean that is true if the message source is anonymous (could be unnamed or have auto-generated name).
-    messaging_source_anonymous = "messaging.source.anonymous",
+    MESSAGING_SOURCE_ANONYMOUS = "messaging.source.anonymous",
     -- A string identifying the messaging system.
-    messaging_system = "messaging.system",
+    MESSAGING_SYSTEM = "messaging.system",
     -- A string identifying the kind of messaging operation as defined in the [Operation names](#operation-names) section above.
-    messaging_operation = "messaging.operation",
+    MESSAGING_OPERATION = "messaging.operation",
     -- The number of messages sent, received, or processed in the scope of the batching operation.
-    messaging_batch_message_count = "messaging.batch.message_count",
+    MESSAGING_BATCH_MESSAGE_COUNT = "messaging.batch.message_count",
     -- The identifier for the consumer receiving a message. For Kafka, set it to `{messaging.kafka.consumer.group} - {messaging.kafka.client_id}`, if both are present, or only `messaging.kafka.consumer.group`. For brokers, such as RabbitMQ and Artemis, set it to the `client_id` of the client consuming the message.
-    messaging_consumer_id = "messaging.consumer.id",
+    MESSAGING_CONSUMER_ID = "messaging.consumer.id",
     -- RabbitMQ message routing key.
-    messaging_rabbitmq_destination_routing_key = "messaging.rabbitmq.destination.routing_key",
+    MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY = "messaging.rabbitmq.destination.routing_key",
     -- Message keys in Kafka are used for grouping alike messages to ensure they're processed on the same partition. They differ from `messaging.message.id` in that they're not unique. If the key is `null`, the attribute MUST NOT be set.
-    messaging_kafka_message_key = "messaging.kafka.message.key",
+    MESSAGING_KAFKA_MESSAGE_KEY = "messaging.kafka.message.key",
     -- Name of the Kafka Consumer Group that is handling the message. Only applies to consumers, not producers.
-    messaging_kafka_consumer_group = "messaging.kafka.consumer.group",
+    MESSAGING_KAFKA_CONSUMER_GROUP = "messaging.kafka.consumer.group",
     -- Client Id for the Consumer or Producer that is handling the message.
-    messaging_kafka_client_id = "messaging.kafka.client_id",
+    MESSAGING_KAFKA_CLIENT_ID = "messaging.kafka.client_id",
     -- Partition the message is sent to.
-    messaging_kafka_destination_partition = "messaging.kafka.destination.partition",
+    MESSAGING_KAFKA_DESTINATION_PARTITION = "messaging.kafka.destination.partition",
     -- Partition the message is received from.
-    messaging_kafka_source_partition = "messaging.kafka.source.partition",
+    MESSAGING_KAFKA_SOURCE_PARTITION = "messaging.kafka.source.partition",
     -- The offset of a record in the corresponding Kafka partition.
-    messaging_kafka_message_offset = "messaging.kafka.message.offset",
+    MESSAGING_KAFKA_MESSAGE_OFFSET = "messaging.kafka.message.offset",
     -- A boolean that is true if the message is a tombstone.
-    messaging_kafka_message_tombstone = "messaging.kafka.message.tombstone",
+    MESSAGING_KAFKA_MESSAGE_TOMBSTONE = "messaging.kafka.message.tombstone",
     -- Namespace of RocketMQ resources, resources in different namespaces are individual.
-    messaging_rocketmq_namespace = "messaging.rocketmq.namespace",
+    MESSAGING_ROCKETMQ_NAMESPACE = "messaging.rocketmq.namespace",
     -- Name of the RocketMQ producer/consumer group that is handling the message. The client type is identified by the SpanKind.
-    messaging_rocketmq_client_group = "messaging.rocketmq.client_group",
+    MESSAGING_ROCKETMQ_CLIENT_GROUP = "messaging.rocketmq.client_group",
     -- The unique identifier for each client.
-    messaging_rocketmq_client_id = "messaging.rocketmq.client_id",
+    MESSAGING_ROCKETMQ_CLIENT_ID = "messaging.rocketmq.client_id",
     -- The timestamp in milliseconds that the delay message is expected to be delivered to consumer.
-    messaging_rocketmq_message_delivery_timestamp = "messaging.rocketmq.message.delivery_timestamp",
+    MESSAGING_ROCKETMQ_MESSAGE_DELIVERY_TIMESTAMP = "messaging.rocketmq.message.delivery_timestamp",
     -- The delay time level for delay message, which determines the message delay time.
-    messaging_rocketmq_message_delay_time_level = "messaging.rocketmq.message.delay_time_level",
+    MESSAGING_ROCKETMQ_MESSAGE_DELAY_TIME_LEVEL = "messaging.rocketmq.message.delay_time_level",
     -- It is essential for FIFO message. Messages that belong to the same message group are always processed one by one within the same consumer group.
-    messaging_rocketmq_message_group = "messaging.rocketmq.message.group",
+    MESSAGING_ROCKETMQ_MESSAGE_GROUP = "messaging.rocketmq.message.group",
     -- Type of message.
-    messaging_rocketmq_message_type = "messaging.rocketmq.message.type",
+    MESSAGING_ROCKETMQ_MESSAGE_TYPE = "messaging.rocketmq.message.type",
     -- The secondary classifier of message besides topic.
-    messaging_rocketmq_message_tag = "messaging.rocketmq.message.tag",
+    MESSAGING_ROCKETMQ_MESSAGE_TAG = "messaging.rocketmq.message.tag",
     -- Key(s) of message, another way to mark message besides message id.
-    messaging_rocketmq_message_keys = "messaging.rocketmq.message.keys",
+    MESSAGING_ROCKETMQ_MESSAGE_KEYS = "messaging.rocketmq.message.keys",
     -- Model of message consumption. This only applies to consumer spans.
-    messaging_rocketmq_consumption_model = "messaging.rocketmq.consumption_model"
+    MESSAGING_ROCKETMQ_CONSUMPTION_MODEL = "messaging.rocketmq.consumption_model"
 }
 return _M

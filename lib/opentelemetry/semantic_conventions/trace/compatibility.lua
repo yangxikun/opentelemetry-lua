@@ -4,6 +4,6 @@
 -- module @semantic_conventions.trace.compatibility
 local _M = {
     -- Parent-child Reference type
-    opentracing_ref_type = "opentracing.ref_type"
+    OPENTRACING_REF_TYPE = "opentracing.ref_type"
 }
 return _M

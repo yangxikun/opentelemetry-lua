@@ -4,6 +4,6 @@
 -- module @semantic_conventions.trace.aws
 local _M = {
     -- The full invoked ARN as provided on the `Context` passed to the function (`Lambda-Runtime-Invoked-Function-Arn` header on the `/runtime/invocation/next` applicable).
-    aws_lambda_invoked_arn = "aws.lambda.invoked_arn"
+    AWS_LAMBDA_INVOKED_ARN = "aws.lambda.invoked_arn"
 }
 return _M

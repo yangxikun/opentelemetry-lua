@@ -4,64 +4,64 @@
 -- module @semantic_conventions.trace.general
 local _M = {
     -- Transport protocol used. See note below.
-    net_transport = "net.transport",
+    NET_TRANSPORT = "net.transport",
     -- Application layer protocol used. The value SHOULD be normalized to lowercase.
-    net_app_protocol_name = "net.app.protocol.name",
+    NET_APP_PROTOCOL_NAME = "net.app.protocol.name",
     -- Version of the application layer protocol used. See note below.
-    net_app_protocol_version = "net.app.protocol.version",
+    NET_APP_PROTOCOL_VERSION = "net.app.protocol.version",
     -- Remote socket peer name.
-    net_sock_peer_name = "net.sock.peer.name",
+    NET_SOCK_PEER_NAME = "net.sock.peer.name",
     -- Remote socket peer address: IPv4 or IPv6 for internet protocols, path for local communication, [etc](https://man7.org/linux/man-pages/man7/address_families.7.html).
-    net_sock_peer_addr = "net.sock.peer.addr",
+    NET_SOCK_PEER_ADDR = "net.sock.peer.addr",
     -- Remote socket peer port.
-    net_sock_peer_port = "net.sock.peer.port",
+    NET_SOCK_PEER_PORT = "net.sock.peer.port",
     -- Protocol [address family](https://man7.org/linux/man-pages/man7/address_families.7.html) which is used for communication.
-    net_sock_family = "net.sock.family",
+    NET_SOCK_FAMILY = "net.sock.family",
     -- Logical remote hostname, see note below.
-    net_peer_name = "net.peer.name",
+    NET_PEER_NAME = "net.peer.name",
     -- Logical remote port number
-    net_peer_port = "net.peer.port",
+    NET_PEER_PORT = "net.peer.port",
     -- Logical local hostname or similar, see note below.
-    net_host_name = "net.host.name",
+    NET_HOST_NAME = "net.host.name",
     -- Logical local port number, preferably the one that the peer used to connect
-    net_host_port = "net.host.port",
+    NET_HOST_PORT = "net.host.port",
     -- Local socket address. Useful in case of a multi-IP host.
-    net_sock_host_addr = "net.sock.host.addr",
+    NET_SOCK_HOST_ADDR = "net.sock.host.addr",
     -- Local socket port number.
-    net_sock_host_port = "net.sock.host.port",
+    NET_SOCK_HOST_PORT = "net.sock.host.port",
     -- The internet connection type currently being used by the host.
-    net_host_connection_type = "net.host.connection.type",
+    NET_HOST_CONNECTION_TYPE = "net.host.connection.type",
     -- This describes more details regarding the connection.type. It may be the type of cell technology connection, but it could be used for describing details about a wifi connection.
-    net_host_connection_subtype = "net.host.connection.subtype",
+    NET_HOST_CONNECTION_SUBTYPE = "net.host.connection.subtype",
     -- The name of the mobile carrier.
-    net_host_carrier_name = "net.host.carrier.name",
+    NET_HOST_CARRIER_NAME = "net.host.carrier.name",
     -- The mobile carrier country code.
-    net_host_carrier_mcc = "net.host.carrier.mcc",
+    NET_HOST_CARRIER_MCC = "net.host.carrier.mcc",
     -- The mobile carrier network code.
-    net_host_carrier_mnc = "net.host.carrier.mnc",
+    NET_HOST_CARRIER_MNC = "net.host.carrier.mnc",
     -- The ISO 3166-1 alpha-2 2-character country code associated with the mobile carrier network.
-    net_host_carrier_icc = "net.host.carrier.icc",
+    NET_HOST_CARRIER_ICC = "net.host.carrier.icc",
     -- The [`service.name`](../../resource/semantic_conventions/README.md#service) of the remote service. SHOULD be equal to the actual `service.name` resource attribute of the remote service if any.
-    peer_service = "peer.service",
+    PEER_SERVICE = "peer.service",
     -- Username or client_id extracted from the access token or [Authorization](https://tools.ietf.org/html/rfc7235#section-4.2) header in the inbound request from outside the system.
-    enduser_id = "enduser.id",
+    ENDUSER_ID = "enduser.id",
     -- Actual/assumed role the client is making the request under extracted from token or application security context.
-    enduser_role = "enduser.role",
+    ENDUSER_ROLE = "enduser.role",
     -- Scopes or granted authorities the client currently possesses extracted from token or application security context. The value would come from the scope associated with an [OAuth 2.0 Access Token](https://tools.ietf.org/html/rfc6749#section-3.3) or an attribute value in a [SAML 2.0 Assertion](http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0.html).
-    enduser_scope = "enduser.scope",
+    ENDUSER_SCOPE = "enduser.scope",
     -- Current "managed" thread ID (as opposed to OS thread ID).
-    thread_id = "thread.id",
+    THREAD_ID = "thread.id",
     -- Current thread name.
-    thread_name = "thread.name",
+    THREAD_NAME = "thread.name",
     -- The method or function name, or equivalent (usually rightmost part of the code unit's name).
-    code_function = "code.function",
+    CODE_FUNCTION = "code.function",
     -- The "namespace" within which `code.function` is defined. Usually the qualified class or module name, such that `code.namespace` + some separator + `code.function` form a unique identifier for the code unit.
-    code_namespace = "code.namespace",
+    CODE_NAMESPACE = "code.namespace",
     -- The source code file name that identifies the code unit as uniquely as possible (preferably an absolute file path).
-    code_filepath = "code.filepath",
+    CODE_FILEPATH = "code.filepath",
     -- The line number in `code.filepath` best representing the operation. It SHOULD point within the code unit named in `code.function`.
-    code_lineno = "code.lineno",
+    CODE_LINENO = "code.lineno",
     -- The column number in `code.filepath` best representing the operation. It SHOULD point within the code unit named in `code.function`.
-    code_column = "code.column"
+    CODE_COLUMN = "code.column"
 }
 return _M

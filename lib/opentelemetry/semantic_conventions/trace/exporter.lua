@@ -4,8 +4,8 @@
 -- module @semantic_conventions.trace.exporter
 local _M = {
     -- Name of the code, either "OK" or "ERROR". MUST NOT be set if the status code is UNSET.
-    otel_status_code = "otel.status_code",
+    OTEL_STATUS_CODE = "otel.status_code",
     -- Description of the Status if it has a value, otherwise not set.
-    otel_status_description = "otel.status_description"
+    OTEL_STATUS_DESCRIPTION = "otel.status_description"
 }
 return _M

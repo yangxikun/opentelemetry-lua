@@ -4,6 +4,6 @@
 -- module @semantic_conventions.trace.trace
 local _M = {
     -- SHOULD be set to true if the exception event is recorded at a point where it is known that the exception is escaping the scope of the span.
-    exception_escaped = "exception.escaped"
+    EXCEPTION_ESCAPED = "exception.escaped"
 }
 return _M

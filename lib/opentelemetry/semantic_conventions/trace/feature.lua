@@ -4,10 +4,10 @@
 -- module @semantic_conventions.trace.feature
 local _M = {
     -- The unique identifier of the feature flag.
-    feature_flag_key = "feature_flag.key",
+    FEATURE_FLAG_KEY = "feature_flag.key",
     -- The name of the service provider that performs the flag evaluation.
-    feature_flag_provider_name = "feature_flag.provider_name",
+    FEATURE_FLAG_PROVIDER_NAME = "feature_flag.provider_name",
     -- SHOULD be a semantic identifier for a value. If one is unavailable, a stringified version of the value can be used.
-    feature_flag_variant = "feature_flag.variant"
+    FEATURE_FLAG_VARIANT = "feature_flag.variant"
 }
 return _M

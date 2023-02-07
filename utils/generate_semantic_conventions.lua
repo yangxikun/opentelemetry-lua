@@ -38,12 +38,12 @@ for _i, dir in ipairs(files_by_dir) do
         local attr_string = ""
         for _i, group in ipairs(data.groups) do
             local prefix = group.prefix or ""
-            local prop_prefix = string.gsub(prefix, "%.", "_")
+            local prop_prefix = string.upper(string.gsub(prefix, "%.", "_"))
             if group.attributes then
                 for _i, attr in ipairs(group.attributes) do
                     if attr.id then
                         local brief = string.gsub((attr.brief or attr.id), "\n", "")
-                        local attr_id_prop = string.gsub(attr.id, "%.", "_")
+                        local attr_id_prop = string.upper(string.gsub(attr.id, "%.", "_"))
                         local attr_id = attr.id
                         if prefix then
                             attr_id_prop = prop_prefix .. "_" .. attr_id_prop
