@@ -42,13 +42,10 @@ services:
       - PROXY_ENDPOINT=${PROXY_ENDPOINT}
     networks:
       - opentelemetry-lua
-  openresty-test:
+  utils:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./utils
     volumes:
       - .:/opt/opentelemetry-lua
-    networks:
-      - opentelemetry-lua
 networks:
   opentelemetry-lua:
