@@ -7,7 +7,8 @@ concurrency:
 on:
   push:
     branches:
-      - "*"
+      - "main"
+      - "update-ci"
   pull_request:
     branches:
       - main
