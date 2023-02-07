@@ -15,6 +15,7 @@ on:
 
 jobs:
   build-openresty:
+    name: "Build openresty image"
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -32,8 +33,8 @@ jobs:
         with:
           name: openresty-image
           path: /tmp/openresty-image.tar
-  test-e2e-trace-context:
-    name: "end to end tests"
+  end-to-end-tests:
+    name: "End to end tests"
     timeout-minutes: 60
     runs-on: ubuntu-latest
     needs:
@@ -60,21 +61,16 @@ jobs:
         with:
           name: openresty-image
           path: /tmp
-
       - name: Load Docker images
         run: |
           docker load --input /tmp/openresty-image.tar
           docker image ls -a
-
       - name: Start containers
         run: make openresty-dev CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
-
       - name: Run openresty integration tests
         run: make openresty-integration-test CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
-
       - name: Run openresty-test-e2e-trace-context
         run: make openresty-test-e2e-trace-context CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
-
       - name: Run openresty-test-e2e
         run: make openresty-test-e2e CONTAINER_ORCHESTRATOR_EXEC_OPTIONS="-T"
 
@@ -87,27 +83,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
           name: openresty-image
           path: /tmp
-
       - name: Load Docker images
         run: |
           docker load --input /tmp/openresty-image.tar
           docker image ls -a
-
       - name: Run busted unit tests
         run: make lua-unit-test
-
       - name: Run api tests
         run: make api-test
-
   book-keeping:
     name: "Book-keeping"
     runs-on: ubuntu-20.04
