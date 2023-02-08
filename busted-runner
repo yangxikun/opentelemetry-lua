@@ -3,7 +3,8 @@
 package.path = './lib/?.lua;./lib/?/?.lua;./lib/?/init.lua' .. package.path
 
 -- Set up global tracer
-Global = require("opentelemetry.global")
+otel_global = require("opentelemetry.global")
+otel_global.logger = require("opentelemetry.utils.logger.nginx"):new("debug")
 local tracer_provider = require("opentelemetry.trace.tracer_provider")
 local attr = require("opentelemetry.attribute")
 local resource = require("opentelemetry.resource")
@@ -17,7 +18,7 @@ local tracer_provider = tracer_provider.new(processor, {
     sampler = always_on_sampler,
     resource = resource.new(attr.string("service.name", "openresty"), attr.int("attr_int", 100)),
 })
-Global.set_tracer_provider(tracer_provider)
+otel_global.set_tracer_provider(tracer_provider)
 
 if ngx ~= nil then
     ngx.exit = function() end

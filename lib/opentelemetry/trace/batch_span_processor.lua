@@ -50,13 +50,13 @@ end
 local function process_batches_timer(self, batches)
     local hdl, err = timer_at(0, process_batches, self, batches)
     if not hdl then
-        ngx.log(ngx.ERR, "failed to create timer: ", err)
+        otel_global.logger:error("failed to create timer: " .. err)
     end
 end
 
 local function flush_batches(premature, self)
     if premature then
-        ngx.log(ngx.INFO, "exiting, try export spans")
+        otel_global.logger:info("exiting, try export spans")
 
         self:flush_all()
         return
@@ -94,7 +94,7 @@ end
 function create_timer(self, delay)
     local hdl, err = timer_at(delay, flush_batches, self)
     if not hdl then
-        ngx.log(ngx.ERR, "failed to create timer: ", err)
+        otel_global.logger:error("failed to create timer: " .. err)
         if ngx.worker.exiting() then
             self:flush_all()
         end
@@ -156,7 +156,7 @@ function _M.on_end(self, span)
     if self:get_queue_size() >= self.max_queue_size then
         -- drop span
         if self.drop_on_queue_full then
-            ngx.log(ngx.WARN, "queue is full, drop span: trace_id = ", span.ctx.trace_id, " span_id = ", span.ctx.span_id)
+            otel_global.logger:warn("queue is full, drop span: trace_id = " .. span.ctx.trace_id .. " span_id = " .. span.ctx.span_id)
             report_dropped_spans(1, "buffer-full")
             return
         end

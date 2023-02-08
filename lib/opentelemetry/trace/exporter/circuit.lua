@@ -61,7 +61,7 @@ function _M.should_make_request(self)
         end
     end
 
-    ngx.log(ngx.ERR, "Circuit breaker could not determine if request should be made (current state: " .. self.state)
+    otel_global.logger:error("Circuit breaker could not determine if request should be made (current state: " .. self.state .. ")")
 end
 
 --------------------------------------------------------------------------------

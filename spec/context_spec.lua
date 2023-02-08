@@ -1,5 +1,4 @@
 local context = require("opentelemetry.context")
-local otel_global = require("opentelemetry.global")
 local baggage = require("opentelemetry.baggage")
 
 describe("get and set", function()
@@ -71,13 +70,13 @@ describe("detach", function()
 
     it("returns outcome of 'false' and error string if token does not match", function()
         -- Swallow logs since we are expecting them
-        stub(ngx, "log")
+        stub(otel_global.logger, "warn")
         local ctx_storage = {}
         otel_global.set_context_storage(ctx_storage)
         local ctx = context.new()
         ctx:attach()
         local outcome, err = ctx:detach(2)
-        ngx.log:revert()
+        otel_global.logger.warn:revert()
         assert.is_false(outcome)
         assert.is_same("Token does not match (1 context entries in stack, token provided was 2).", err)
     end)

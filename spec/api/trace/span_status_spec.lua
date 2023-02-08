@@ -1,4 +1,4 @@
-local span_status = require("lib.opentelemetry.api.trace.span_status")
+local span_status = require("opentelemetry.api.trace.span_status")
 
 describe("new()", function()
     it("defaults to unset", function()

@@ -54,7 +54,7 @@ function _M.detach(self, token)
         local error_message = "Token does not match (" ..
             #otel_global.get_context_storage()[context_key] ..
             " context entries in stack, token provided was " .. token .. ")."
-        ngx.log(ngx.WARN, error_message)
+        otel_global.logger:warn(error_message)
         return false, error_message
     end
 end

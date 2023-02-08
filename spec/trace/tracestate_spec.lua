@@ -33,15 +33,15 @@ describe("is_valid", function()
         assert.is_true(ts:as_string() == "bing=bong,foo=bar,baz=lehrman")
     end)
     it("max len is respected", function()
-        -- Supress logs during test, since we expect them.
-        stub(ngx, "log")
         local ts = tracestate.parse_tracestate("")
         for i=1,tracestate.MAX_ENTRIES,1 do
             ts:set("a" .. tostring(i), "b" .. tostring(i))
         end
         assert.is_true(#ts.values == tracestate.MAX_ENTRIES)
+        -- Supress logs during test, since we expect them.
+        stub(otel_global.logger, "warn")
         ts:set("one", "more")
-        ngx.log:revert()
+        otel_global.logger.warn:revert()
         assert.is_true(#ts.values == tracestate.MAX_ENTRIES)
         -- First elem added is the first one lost when we add over max entries
         assert.is_true(ts:get("a1") == "")

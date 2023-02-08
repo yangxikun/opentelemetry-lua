@@ -1,7 +1,7 @@
 local exporter = require "opentelemetry.trace.exporter.otlp"
 local client = require "opentelemetry.trace.exporter.http_client"
 local context = require "opentelemetry.context"
-local tp = Global.get_tracer_provider()
+local tp = otel_global.get_tracer_provider()
 local tracer = tp:tracer("test")
 
 describe("export_spans", function()
@@ -10,12 +10,13 @@ describe("export_spans", function()
         local ctx = context.new()
         ctx, span = tracer:start(ctx, "test span")
         span:finish()
-        local c = client.new("http://localhost:8080", 10)
+        local c = client.new("http://localhost:8080", 1)
         spy.on(c, "do_request")
         local cb = exporter.new(c)
         -- Supress log message, since we expect it
-        stub(ngx, "log")
+        stub(otel_global.logger, "error")
         cb:export_spans({ span })
+        otel_global.logger.error:revert()
         assert.spy(c.do_request).was_called_with(c, match.is_string())
     end)
 
@@ -29,8 +30,6 @@ describe("export_spans", function()
         c.do_request = function() return nil, "there was a problem" end
         mock(c, "do_request")
         local cb = exporter.new(c, 10000)
-        -- Supress log message, since we expect it
-        stub(ngx, "log")
         cb:export_spans({ span })
         assert.spy(c.do_request).was_called(3)
     end)
@@ -41,14 +40,14 @@ describe("export_spans", function()
         ctx:attach()
         ctx, span = tracer:start(ctx, "test span")
         span:finish()
-        local c= client.new("http://localhost:8080", 10)
+        local c = client.new("http://localhost:8080", 10)
         -- Set default timeout to -1, so that we're already over the timeout
         local cb = exporter.new(client, -1)
         spy.on(c, "do_request")
         -- Supress log message, since we expect it
-        stub(ngx, "log")
+        stub(otel_global.logger, "warn")
         cb:export_spans({ span})
-        ngx.log:revert()
+        otel_global.logger.warn:revert()
         assert.spy(c.do_request).was_not_called()
     end)
 end)

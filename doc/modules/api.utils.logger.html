@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/api.trace.span_status.html">api.trace.span_status</a></li>
+  <li><a href="../modules/api.utils.env_var_settings.html">api.utils.env_var_settings</a></li>
+  <li><strong>api.utils.logger</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>api.utils.logger</code></h1>
+<p>A simple logger that uses print().</p>
+<p> All loggers must adhere to the same interface.
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#log_levels">log_levels ()</a></td>
+	<td class="summary">Return a table with all log levels.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#new">new (log_level)</a></td>
+	<td class="summary">Return a new logger instance</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#write">write (message, configured_level, callsite_level)</a></td>
+	<td class="summary">Write message to stdout</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#debug">debug (message)</a></td>
+	<td class="summary">Write debug message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#info">info (message)</a></td>
+	<td class="summary">Write info message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#notice">notice (message)</a></td>
+	<td class="summary">Write notice message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#warn">warn (message)</a></td>
+	<td class="summary">Write warn message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#error">error (message)</a></td>
+	<td class="summary">Write error message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#crit">crit (message)</a></td>
+	<td class="summary">Write crit message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#alert">alert (message)</a></td>
+	<td class="summary">Write alert message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#emerg">emerg (message)</a></td>
+	<td class="summary">Write emerg message</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "log_levels"></a>
+    <strong>log_levels ()</strong>
+    </dt>
+    <dd>
+    Return a table with all log levels.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A table of log levels ({ log_level_name = int, ... }).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "new"></a>
+    <strong>new (log_level)</strong>
+    </dt>
+    <dd>
+    Return a new logger instance
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">log_level</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The log level to use. Defaults to 'error'.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A new logger instance
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "write"></a>
+    <strong>write (message, configured_level, callsite_level)</strong>
+    </dt>
+    <dd>
+    Write message to stdout
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+        <li><span class="parameter">configured_level</span>
+            <span class="types"><span class="type">number</span></span>
+         The log level of the logger instance.
+        </li>
+        <li><span class="parameter">callsite_level</span>
+            <span class="types"><span class="type">number</span></span>
+         The log level at which the message was logged.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "debug"></a>
+    <strong>debug (message)</strong>
+    </dt>
+    <dd>
+    Write debug message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "info"></a>
+    <strong>info (message)</strong>
+    </dt>
+    <dd>
+    Write info message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "notice"></a>
+    <strong>notice (message)</strong>
+    </dt>
+    <dd>
+    Write notice message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "warn"></a>
+    <strong>warn (message)</strong>
+    </dt>
+    <dd>
+    Write warn message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "error"></a>
+    <strong>error (message)</strong>
+    </dt>
+    <dd>
+    Write error message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "crit"></a>
+    <strong>crit (message)</strong>
+    </dt>
+    <dd>
+    Write crit message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "alert"></a>
+    <strong>alert (message)</strong>
+    </dt>
+    <dd>
+    Write alert message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "emerg"></a>
+    <strong>emerg (message)</strong>
+    </dt>
+    <dd>
+    Write emerg message
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The message to write.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-02-08 18:47:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

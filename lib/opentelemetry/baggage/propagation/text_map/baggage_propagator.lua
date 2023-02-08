@@ -5,6 +5,7 @@
 --------------------------------------------------------------------------------
 
 local baggage = require("opentelemetry.baggage")
+local otel_global = require("opentelemetry.global")
 local text_map_getter = require("opentelemetry.trace.propagation.text_map.getter")
 local text_map_setter = require("opentelemetry.trace.propagation.text_map.setter")
 local util = require("opentelemetry.util")
@@ -91,7 +92,7 @@ function _M:extract(context, carrier, getter)
             if self.validate_baggage(k, v) then
                 baggage_entries[k] = { value = v, metadata = metadata }
             else
-                ngx.log(ngx.WARN, "invalid baggage entry: " .. k .. "=" .. v)
+                otel_global.logger:warn("invalid baggage entry: " .. k .. "=" .. v)
             end
         end
     end

@@ -22,7 +22,7 @@ openresty-build:
 	$(CONTAINER_ORCHESTRATOR) build
 
 doc:
-	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'ldoc lib/opentelemetry/api'
+	$(CONTAINER_ORCHESTRATOR) run --no-deps $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- utils bash -c 'ldoc lib/opentelemetry/api'
 
 check-format:
 	$(CONTAINER_ORCHESTRATOR) run --no-deps $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- utils bash -c 'lua-format --check lib/opentelemetry/api/**/*.lua spec/api/**/*.lua'

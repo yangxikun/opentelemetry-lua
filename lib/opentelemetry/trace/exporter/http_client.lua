@@ -1,4 +1,5 @@
 local http = require("resty.http")
+local otel_global = require("opentelemetry.global")
 
 local _M = {
 }
@@ -43,13 +44,13 @@ function _M.do_request(self, body)
     })
 
     if not res then
-        ngx.log(ngx.ERR, "request failed: ", err)
+        otel_global.logger:error("request failed: " .. err)
         httpc:close()
         return nil, err
     end
 
     if res.status ~= 200  then
-        ngx.log(ngx.ERR, "request failed: ", res.body)
+        otel_global.logger:error("request failed: " .. res.body)
         httpc:close()
         return nil, "request failed: " .. res.status
     end
