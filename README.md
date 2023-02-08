@@ -14,13 +14,6 @@ This project currently lives in a alpha status.
 
 git clone this project, then run `luarocks make` in  project root directory.
 
-# Develop
-
-- set up environment: `make openresty-build && make openresty-dev`
-- test e2e: `make openresty-test-e2e`
-- test trace context: `openresty-test-e2e-trace-context`
-- run unit test: `make openresty-unit-test`
-
 # APIs
 
 This lib is designed for Nginx+LUA/OpenResty ecosystems.

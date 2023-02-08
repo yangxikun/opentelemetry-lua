@@ -9,8 +9,10 @@ There are a few different types of tests in this repo, which can all be run via 
 There are integration tests in the `t/` directory. These use Perl's `Test::NGINX` framework, as described in the [Programming Openresty Book](https://openresty.gitbooks.io/programming-openresty/content/testing/test-nginx.html). To run these tests, you first must start a working openresty server, which is configured to use the code in the repo (`make openresty-dev`). Then, you can run tests using `make openresty-unit-test`.
 
 ```
+make openresty-build
 make openresty-dev
 make openresty-unit-test
+make openresty-test-e2e
 ```
 
 To pick up code changes, you need to re-run `luarocks make && nginx -s reload` inside the `openresty` container started by `make openresty-dev`.
