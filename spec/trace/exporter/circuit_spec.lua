@@ -1,4 +1,4 @@
-local util = require("lib.opentelemetry.util")
+local util = require("opentelemetry.util")
 local circuit = require("opentelemetry.trace.exporter.circuit")
 
 describe("should_make_request", function()

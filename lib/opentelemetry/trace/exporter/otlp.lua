@@ -45,12 +45,12 @@ local function call_collector(exporter, pb_encoded_body)
         local current_time = util.gettimeofday_ms()
         if current_time - start_time_ms > exporter.timeout_ms then
             local err_message = "Collector retries timed out (timeout " .. exporter.timeout_ms .. ")"
-            ngx.log(ngx.WARN, err_message)
+            otel_global.logger:warn(err_message)
             return false, err_message
         end
 
         if not exporter.circuit:should_make_request() then
-            ngx.log(ngx.INFO, "Circuit breaker is open")
+            otel_global.logger:info("Circuit breaker is open")
             return false, "Circuit breaker is open"
         end
 
@@ -64,7 +64,7 @@ local function call_collector(exporter, pb_encoded_body)
             exporter.circuit:record_failure()
             failures = failures + 1
             ngx.sleep(util.random_float(2 ^ failures))
-            ngx.log(ngx.INFO, "Retrying call to collector (retry #" .. failures .. ")")
+            otel_global.logger:info("Retrying call to collector (retry #" .. failures .. ")")
         else
             exporter.circuit:record_success()
             return true, nil

@@ -1,6 +1,16 @@
+------------------------------------------------------------------------------------------------------------------------
+-- The entrypoint for the package.
+--
+-- @module opentelemetry.global
+------------------------------------------------------------------------------------------------------------------------
 local metrics_reporter = require("opentelemetry.metrics_reporter")
+local envs = require("opentelemetry.api.utils.env_var_settings")
 
-local _M = { context_storage = nil, metrics_reporter = metrics_reporter }
+local _M = {
+    context_storage = nil,
+    metrics_reporter = metrics_reporter,
+    logger = require('opentelemetry.utils.logger.nginx'):new(envs.log_level)
+}
 
 function _M.set_tracer_provider(tp)
     _M.tracer_provider = tp

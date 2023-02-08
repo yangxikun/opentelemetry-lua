@@ -38,7 +38,10 @@ describe("is_valid", function()
             ts:set("a" .. tostring(i), "b" .. tostring(i))
         end
         assert.is_true(#ts.values == tracestate.MAX_ENTRIES)
+        -- Supress logs during test, since we expect them.
+        stub(otel_global.logger, "warn")
         ts:set("one", "more")
+        otel_global.logger.warn:revert()
         assert.is_true(#ts.values == tracestate.MAX_ENTRIES)
         -- First elem added is the first one lost when we add over max entries
         assert.is_true(ts:get("a1") == "")
