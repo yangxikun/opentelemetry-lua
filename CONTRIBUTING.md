@@ -1,6 +1,6 @@
 # Contributing
 
-## Tests
+## Running Tests
 
 There are a few different types of tests in this repo, which can all be run via the Makefile.
 
