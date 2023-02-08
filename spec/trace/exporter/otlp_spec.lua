@@ -30,9 +30,7 @@ describe("export_spans", function()
         c.do_request = function() return nil, "there was a problem" end
         mock(c, "do_request")
         local cb = exporter.new(c, 10000)
-        stub(ngx, "log")
         cb:export_spans({ span })
-        ngx.log:revert()
         assert.spy(c.do_request).was_called(3)
     end)
 
