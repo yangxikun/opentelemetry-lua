@@ -16,6 +16,7 @@ describe("export_spans", function()
         -- Supress log message, since we expect it
         stub(ngx, "log")
         cb:export_spans({ span })
+        ngx.log:revert()
         assert.spy(c.do_request).was_called_with(c, match.is_string())
     end)
 
@@ -29,9 +30,9 @@ describe("export_spans", function()
         c.do_request = function() return nil, "there was a problem" end
         mock(c, "do_request")
         local cb = exporter.new(c, 10000)
-        -- Supress log message, since we expect it
         stub(ngx, "log")
         cb:export_spans({ span })
+        ngx.log:revert()
         assert.spy(c.do_request).was_called(3)
     end)
 
@@ -45,7 +46,6 @@ describe("export_spans", function()
         -- Set default timeout to -1, so that we're already over the timeout
         local cb = exporter.new(client, -1)
         spy.on(c, "do_request")
-        -- Supress log message, since we expect it
         stub(ngx, "log")
         cb:export_spans({ span})
         ngx.log:revert()
