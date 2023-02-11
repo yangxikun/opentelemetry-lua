@@ -2,20 +2,14 @@
 
 package.path = './lib/?.lua;./lib/?/?.lua;./lib/?/init.lua' .. package.path
 
-_TEST = true
-_RUN_SLOW_TESTS = true
-
 -- Set up global tracer
 Global = require("opentelemetry.global")
 local tracer_provider = require("opentelemetry.trace.tracer_provider")
 local attr = require("opentelemetry.attribute")
 local resource = require("opentelemetry.resource")
 local always_on_sampler = require("opentelemetry.trace.sampling.always_on_sampler")
-local otlp_exporter = require("opentelemetry.trace.exporter.otlp")
-local http_client = require("opentelemetry.trace.exporter.http_client")
 local batch_span_processor = require("opentelemetry.trace.batch_span_processor")
-local client = http_client.new("127.0.0.1:4317", 3, {header_key = "header_val"})
-local exporter = otlp_exporter.new(client)
+local exporter = require("opentelemetry.trace.exporter.console")
 local processor = batch_span_processor.new(exporter, {
     drop_on_queue_full = false, max_queue_size = 1024, batch_timeout = 3, inactive_timeout = 1, max_export_batch_size = 10
 })
