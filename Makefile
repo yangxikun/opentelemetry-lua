@@ -29,3 +29,6 @@ format:
 
 api-test:
 	$(CONTAINER_ORCHESTRATOR) run $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'busted -m "./lib/?.lua;./lib/?/?.lua;./lib/?/?/?.lua" ./spec/api'
+
+generate-semantic-conventions:
+	$(CONTAINER_ORCHESTRATOR) run --no-deps $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'pushd tmp && rm -rf opentelemetry-specification && git clone --depth=1 https://github.com/open-telemetry/opentelemetry-specification.git && popd && resty ./utils/generate_semantic_conventions.lua && lua-format -i lib/opentelemetry/semantic_conventions/trace/*.lua'
