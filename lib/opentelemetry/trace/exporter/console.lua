@@ -29,7 +29,7 @@ function _M.export_spans(self, spans)
 
     -- Check if ngx variable is not nil; use ngx.log if ngx var is present.
     if ngx then
-        ngx.log(ngx.INFO, "Export spans: ", span_string)
+        ngx.log(ngx.CRIT, "Export spans: ", span_string)
     else
         print("Export spans: ", span_string)
     end

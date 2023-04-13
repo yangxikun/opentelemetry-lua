@@ -335,3 +335,7 @@ local my_metrics_reporter = {
 }
 otel_global.set_metrics_reporter(metrics_reporter)
 ```
+
+### Benchmarks
+
+You can run benchmarks using `make benchmark`.
