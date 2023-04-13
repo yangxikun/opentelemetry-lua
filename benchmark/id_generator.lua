@@ -5,4 +5,4 @@ for _ = 1, 5000000 do
     id_generator.new_ids()
 end
 
-print('fewer random calls, 5m new ids: ' .. (os.clock() - start) ..' seconds.')
+print('5m new ids: ' .. (os.clock() - start) ..' seconds.')
