@@ -1,4 +1,4 @@
-.PHONY: doc format api-test
+.PHONY: doc format api-test benchmark
 CONTAINER_ORCHESTRATOR ?= docker-compose
 CONTAINER_ORCHESTRATOR_EXEC_OPTIONS := $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS)
 
@@ -35,3 +35,6 @@ api-test:
 
 generate-semantic-conventions:
 	$(CONTAINER_ORCHESTRATOR) run --no-deps $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'pushd tmp && rm -rf opentelemetry-specification && git clone --depth=1 https://github.com/open-telemetry/opentelemetry-specification.git && popd && resty ./utils/generate_semantic_conventions.lua && lua-format -i lib/opentelemetry/semantic_conventions/trace/*.lua'
+
+benchmark:
+	$(CONTAINER_ORCHESTRATOR) run --no-deps $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS) -- openresty bash -c 'cd /opt/opentelemetry-lua && benchmark/run.sh'
