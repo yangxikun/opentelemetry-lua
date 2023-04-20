@@ -4,6 +4,7 @@ title: Changelog
 
 ## Table of Contents
 
+- [0.2-4](#024)
 - [0.2-3](#023)
 - [0.2-2](#022)
 - [0.2-1](#021)
@@ -13,16 +14,23 @@ title: Changelog
 - [0.1-1](#011)
 - [0.1-0](#010)
 
+## 0.2-4
+
+### Change
+
+- improve: speed up id generator yangxikun/opentelemetry-lua#74
+- feature: add semantic conventions yangxikun/opentelemetry-lua#66
+
 ## 0.2-3
 
 ### Change
 
-- feature: exporter client support https #60
-- breaking: span_status field name changed to uppercase #59
+- feature: exporter client support https yangxikun/opentelemetry-lua#60
+- breaking: span_status field name changed to uppercase yangxikun/opentelemetry-lua#59
 
 ### Bugfix
 
-- context.with_span need copy the parent context's entries #58
+- context.with_span need copy the parent context's entries yangxikun/opentelemetry-lua#58
 
 ## 0.2-2
 
