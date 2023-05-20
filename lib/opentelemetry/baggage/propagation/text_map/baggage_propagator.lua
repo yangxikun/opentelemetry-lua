@@ -87,7 +87,8 @@ function _M:extract(context, carrier, getter)
         end
 
         -- split apart k/v on equals sign
-        for k, v in string.gmatch(kv, "(.+)=(.+)") do
+        -- and remove leading and trailing whitespaces in k/v
+        for k, v in string.gmatch(kv, "(%S.-)%s*=%s*(.*%S)") do
             if self.validate_baggage(k, v) then
                 baggage_entries[k] = { value = v, metadata = metadata }
             else

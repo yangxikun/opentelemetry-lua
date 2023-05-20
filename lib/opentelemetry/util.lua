@@ -149,6 +149,10 @@ local function split(inputstr, sep)
   return t
 end
 
+--------------------------------------------------------------------------------
+-- Strip whitespace from the beginning and end of a string
+-- Code from http://lua-users.org/wiki/StringTrim
+--------------------------------------------------------------------------------
 local function trim(s)
   return s:match '^%s*(.*%S)' or ''
 end
