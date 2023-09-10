@@ -81,12 +81,16 @@ local cur_span_context = context:span_context()
 local attr = require("opentelemetry.attribute")
 -- string attribute
 attr.string("service.name", "openresty")
+attr.string_array("service.name", {"openresty"})
 -- int attribute
 attr.int("attr_int", 100)
+attr.int_array("attr_ints", {100, 1000})
 -- double attribute
 attr.double("attr_double", 10.24)
+attr.double_array("attr_doubles", {10.24, 20.48})
 -- bool attribute
 attr.bool("attr_bool", true)
+attr.bool_array("attr_bools", {true, false})
 ```
 
 ## Resource
