@@ -17,20 +17,23 @@ services:
     image: jaegertracing/all-in-one
     ports:
       - 26686:16686
+      - 4319-4320:4317-4318
     networks:
       - opentelemetry-lua
   otel-collector:
     image: otel/opentelemetry-collector-contrib-dev:latest
     command: [ "--config=/etc/otel-collector-config.yaml" ]
+    ports:
+      - 4317:4317
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    depends_on:
-      - jaeger
     networks:
       - opentelemetry-lua
   test-server:
     build:
       context: ./examples/server
+    ports:
+      - 10080:80
     depends_on:
       - otel-collector
     networks:

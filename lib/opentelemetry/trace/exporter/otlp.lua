@@ -55,7 +55,7 @@ local function call_collector(exporter, pb_encoded_body)
         end
 
         -- Make request
-        res, res_error = exporter.client:do_request(pb_encoded_body)
+        res, res_error = exporter.client:do_request(pb_encoded_body, true)
         local after_time = util.gettimeofday_ms()
         otel_global.metrics_reporter:record_value(
             exporter_request_duration_metric, after_time - current_time)

@@ -1,5 +1,5 @@
 local http = require("resty.http")
-
+local zlib = require("zlib")
 local _M = {
 }
 
@@ -13,9 +13,10 @@ local mt = {
 -- @address             opentelemetry collector: host:port
 -- @timeout             export request timeout second
 -- @headers             export request headers
+-- @httpc               openresty http client instance
 -- @return              http client
 ------------------------------------------------------------------
-function _M.new(address, timeout, headers)
+function _M.new(address, timeout, headers, httpc)
     headers = headers or {}
     headers["Content-Type"] = "application/x-protobuf"
 
@@ -28,15 +29,29 @@ function _M.new(address, timeout, headers)
         uri = uri,
         timeout = timeout,
         headers = headers,
+        httpc = httpc,
     }
     return setmetatable(self, mt)
 end
 
-function _M.do_request(self, body)
-    local httpc = http.new()
-    httpc:set_timeout(self.timeout * 1000)
+function _M.do_request(self, body, encode_gzip)
+    self.httpc = self.httpc or http.new()
 
-    local res, err = httpc:request_uri(self.uri, {
+    encode_gzip = encode_gzip or false
+    self.httpc:set_timeout(self.timeout * 1000)
+
+    if encode_gzip then
+        -- Compress (deflate) request body
+        -- the compression should be set to Best Compression and window size
+        -- should be set to 15+16, see reference below:
+        -- https://github.com/brimworks/lua-zlib/issues/4#issuecomment-26383801
+        self.headers["Content-Encoding"] = "gzip"
+        local deflate_stream = zlib.deflate(zlib.BEST_COMPRESSION, 15+16)
+        local compressed_body = deflate_stream(body, "finish")
+        body = compressed_body
+    end
+
+    local res, err = self.httpc:request_uri(self.uri, {
         method = "POST",
         headers = self.headers,
         body = body,
@@ -44,13 +59,13 @@ function _M.do_request(self, body)
 
     if not res then
         ngx.log(ngx.ERR, "request failed: ", err)
-        httpc:close()
+        self.httpc:close()
         return nil, err
     end
 
     if res.status ~= 200  then
         ngx.log(ngx.ERR, "request failed: ", res.body)
-        httpc:close()
+        self.httpc:close()
         return nil, "request failed: " .. res.status
     end
 

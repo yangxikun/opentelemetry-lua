@@ -17,7 +17,7 @@ describe("export_spans", function()
         stub(ngx, "log")
         cb:export_spans({ span })
         ngx.log:revert()
-        assert.spy(c.do_request).was_called_with(c, match.is_string())
+        assert.spy(c.do_request).was_called_with(c, match.is_string(), match.is_all_of(match.is_boolean(), match.is_equal(true)))
     end)
 
     it("doesn't invoke protected_call when failures is equal to retry limit", function()
