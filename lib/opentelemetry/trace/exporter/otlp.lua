@@ -14,14 +14,15 @@ local mt = {
     __index = _M
 }
 
-function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms, circuit_open_threshold)
+function _M.new(http_client, timeout_ms, use_gzip, circuit_reset_timeout_ms, circuit_open_threshold)
     local self = {
         client = http_client,
         timeout_ms = timeout_ms or DEFAULT_TIMEOUT_MS,
+        use_gzip = use_gzip or false,
         circuit = circuit.new({
             reset_timeout_ms = circuit_reset_timeout_ms,
             failure_threshold = circuit_open_threshold
-        })
+        }),
     }
     return setmetatable(self, mt)
 end
@@ -35,7 +36,7 @@ end
 -- @return true if call succeeded; false if call failed
 -- @return nil if call succeeded; error message string if call failed
 --------------------------------------------------------------------------------
-local function call_collector(exporter, pb_encoded_body)
+local function call_collector(exporter, pb_encoded_body, use_gzip)
     local start_time_ms = util.gettimeofday_ms()
     local failures = 0
     local res
@@ -54,8 +55,27 @@ local function call_collector(exporter, pb_encoded_body)
             return false, "Circuit breaker is open"
         end
 
+        if use_gzip then
+            -- Compress (deflate) request body
+            -- the compression should be set to Best Compression and window size
+            -- should be set to 15+16, see reference below:
+            -- https://github.com/brimworks/lua-zlib/issues/4#issuecomment-26383801
+            local deflate_stream = zlib.deflate(zlib.BEST_COMPRESSION, 15+16)
+            local compressed_body, _, _, bytes_out = deflate_stream(pb_encoded_body, "finish")
+
+            otel_global.metrics_reporter:record_value(
+                exporter_request_uncompressed_payload_size, string.len(pb_encoded_body))
+            otel_global.metrics_reporter:record_value(
+                exporter_request_compressed_payload_size, bytes_out)
+
+            pb_encoded_body = compressed_body
+        else
+            otel_global.metrics_reporter:record_value(
+                exporter_request_uncompressed_payload_size, string.len(pb_encoded_body))
+        end
+
         -- Make request
-        res, res_error = exporter.client:do_request(pb_encoded_body, true)
+        res, res_error = exporter.client:do_request(pb_encoded_body)
         local after_time = util.gettimeofday_ms()
         otel_global.metrics_reporter:record_value(
             exporter_request_duration_metric, after_time - current_time)
@@ -101,7 +121,7 @@ function _M.export_spans(self, spans)
             body.resource_spans[1].instrumentation_library_spans[1].spans,
             encoder.for_otlp(span))
     end
-    return call_collector(self, pb.encode(body))
+    return call_collector(self, pb.encode(body), self.use_gzip)
 end
 
 function _M.shutdown(self)

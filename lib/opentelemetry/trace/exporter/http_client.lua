@@ -1,5 +1,9 @@
 local http = require("resty.http")
 local zlib = require("zlib")
+local otel_global = require("opentelemetry.global")
+local exporter_request_compressed_payload_size = "otel.otlp_exporter.request_compressed_payload_size"
+local exporter_request_uncompressed_payload_size = "otel.otlp_exporter.request_uncompressed_payload_size"
+
 local _M = {
 }
 
@@ -14,6 +18,7 @@ local mt = {
 -- @timeout             export request timeout second
 -- @headers             export request headers
 -- @httpc               openresty http client instance
+-- @use_gzip            flag to enable gzip compression on request body
 -- @return              http client
 ------------------------------------------------------------------
 function _M.new(address, timeout, headers, httpc)
@@ -31,25 +36,13 @@ function _M.new(address, timeout, headers, httpc)
         headers = headers,
         httpc = httpc,
     }
+
     return setmetatable(self, mt)
 end
 
-function _M.do_request(self, body, encode_gzip)
+function _M.do_request(self, body)
     self.httpc = self.httpc or http.new()
-
-    encode_gzip = encode_gzip or false
     self.httpc:set_timeout(self.timeout * 1000)
-
-    if encode_gzip then
-        -- Compress (deflate) request body
-        -- the compression should be set to Best Compression and window size
-        -- should be set to 15+16, see reference below:
-        -- https://github.com/brimworks/lua-zlib/issues/4#issuecomment-26383801
-        self.headers["Content-Encoding"] = "gzip"
-        local deflate_stream = zlib.deflate(zlib.BEST_COMPRESSION, 15+16)
-        local compressed_body = deflate_stream(body, "finish")
-        body = compressed_body
-    end
 
     local res, err = self.httpc:request_uri(self.uri, {
         method = "POST",
