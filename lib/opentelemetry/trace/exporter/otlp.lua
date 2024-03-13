@@ -74,7 +74,7 @@ local function call_collector(exporter, pb_encoded_body)
     return false, res_error or "unknown"
 end
 
-function _M.export_spans(self, spans)
+function _M.encode_spans(self, spans)
     assert(spans[1])
 
     local body = {
@@ -96,12 +96,57 @@ function _M.export_spans(self, spans)
             }
         }
     }
+    local tracers = {}
+    local providers = {}
+    tracers[spans[1].tracer] = 1
+    providers[spans[1].tracer.provider] = 1
     for _, span in ipairs(spans) do
+        local rs_idx = providers[span.tracer.provider]
+        local ils_idx = tracers[span.tracer]
+        if not rs_idx then
+            rs_idx = #body.resource_spans + 1
+            ils_idx = 1
+            providers[span.tracer.provider] = rs_idx
+            tracers[span.tracer] = ils_idx
+            table.insert(
+                body.resource_spans,
+                {
+                    resource = {
+                        attributes = span.tracer.provider.resource.attrs,
+                        dropped_attributes_count = 0,
+                    },
+                    instrumentation_library_spans = {
+                        {
+                            instrumentation_library = {
+                                name = span.tracer.il.name,
+                                version = span.tracer.il.version,
+                            },
+                            spans = {}
+                        },
+                    },
+                })
+        elseif not ils_idx then
+            ils_idx = #body.resource_spans[rs_idx].instrumentation_library_spans + 1
+            tracers[span.tracer] = ils_idx
+            table.insert(
+                body.resource_spans[rs_idx].instrumentation_library_spans,
+                {
+                    instrumentation_library = {
+                        name = span.tracer.il.name,
+                        version = span.tracer.il.version,
+                    },
+                    spans = {}
+                })
+        end
         table.insert(
-            body.resource_spans[1].instrumentation_library_spans[1].spans,
+            body.resource_spans[rs_idx].instrumentation_library_spans[ils_idx].spans,
             encoder.for_otlp(span))
     end
-    return call_collector(self, pb.encode(body))
+    return body
+end
+
+function _M.export_spans(self, spans)
+    return call_collector(self, pb.encode(self:encode_spans(spans)))
 end
 
 function _M.shutdown(self)
