@@ -20,7 +20,7 @@ local baggage_context_key = "__opentelemetry_baggage__"
 -- @return              context
 --------------------------------------------------------------------------------
 function _M.new(entries, span)
-    return setmetatable({ sp = span or noop_span, entries = entries or {} }, mt)
+    return setmetatable({ sp = span or noop_span.new(), entries = entries or {} }, mt)
 end
 
 --------------------------------------------------------------------------------

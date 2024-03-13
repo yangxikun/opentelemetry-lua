@@ -1,10 +1,18 @@
-local empty_span_context = require("opentelemetry.trace.span_context").new()
+local empty_span_context = require("opentelemetry.trace.span_context")
 
 local _M = {
 }
 
+local mt = {
+    __index = _M
+}
+
+function _M.new()
+    return setmetatable({ ctx = empty_span_context.new() }, mt)
+end
+
 function _M.context(self)
-    return empty_span_context
+    return self.ctx
 end
 
 function _M.is_recording()

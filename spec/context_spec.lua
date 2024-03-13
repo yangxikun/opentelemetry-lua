@@ -19,6 +19,18 @@ describe("current", function()
         otel_global.set_context_storage(ctx_storage)
         assert.are.equal(ctx_2, context.current())
     end)
+
+    it("instantiates different noop spans when no span provided", function()
+        local ctx_1 = context.new()
+        local ctx_2 = context.new()
+
+        -- accessing span context on different contexts gives different object back
+        assert.are_not.equal(ctx_1.sp:context(), ctx_2.sp:context())
+        assert.are_not.equal(ctx_1.sp:context().trace_state, ctx_2.sp:context().trace_state)
+
+        -- accessing span context on same context gives same object back
+        assert.are.equal(ctx_1.sp:context(), ctx_1.sp:context())
+    end)
 end)
 
 describe("with_span", function()
