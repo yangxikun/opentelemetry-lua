@@ -1,3 +1,4 @@
+local zlib = require("zlib")
 local encoder = require("opentelemetry.trace.exporter.encoder")
 local pb = require("opentelemetry.trace.exporter.pb")
 local otel_global = require("opentelemetry.global")
@@ -14,10 +15,11 @@ local mt = {
     __index = _M
 }
 
-function _M.new(http_client, timeout_ms, circuit_reset_timeout_ms, circuit_open_threshold)
+function _M.new(http_client, timeout_ms, gzip, circuit_reset_timeout_ms, circuit_open_threshold)
     local self = {
         client = http_client,
         timeout_ms = timeout_ms or DEFAULT_TIMEOUT_MS,
+        gzip = gzip or false,
         circuit = circuit.new({
             reset_timeout_ms = circuit_reset_timeout_ms,
             failure_threshold = circuit_open_threshold
@@ -40,6 +42,16 @@ local function call_collector(exporter, pb_encoded_body)
     local failures = 0
     local res
     local res_error
+    local headers
+    if exporter.gzip then
+        -- Compress (deflate) request body
+        -- the compression should be set to Best Compression and window size
+        -- should be set to 15+16, see reference below:
+        -- https://github.com/brimworks/lua-zlib/issues/4#issuecomment-26383801
+        local deflate_stream = zlib.deflate(zlib.BEST_COMPRESSION, 15+16)
+        pb_encoded_body, _, _, bytes_out = deflate_stream(pb_encoded_body, "finish")
+        headers = {["Content-Encoding"]= "gzip"}
+    end
 
     while failures < BACKOFF_RETRY_LIMIT do
         local current_time = util.gettimeofday_ms()
@@ -55,7 +67,7 @@ local function call_collector(exporter, pb_encoded_body)
         end
 
         -- Make request
-        res, res_error = exporter.client:do_request(pb_encoded_body)
+        res, res_error = exporter.client:do_request(pb_encoded_body, headers)
         local after_time = util.gettimeofday_ms()
         otel_global.metrics_reporter:record_value(
             exporter_request_duration_metric, after_time - current_time)
