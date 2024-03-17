@@ -77,7 +77,9 @@ end
 --------------------------------------------------------------------------------
 function _M.for_console(span)
     local ret = "\n---------------------------------------------------------\n"
-    ret = ret .. util.table_as_string(_M.for_export(span), 2)
+    local ex = _M.for_export(span)
+    ex["resource_attributes"] = span.tracer.provider.resource.attrs
+    ret = ret .. util.table_as_string(ex, 2)
     ret = ret .. "---------------------------------------------------------\n"
     return ret
 end
