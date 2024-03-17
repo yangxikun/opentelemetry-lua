@@ -4,6 +4,7 @@ title: Changelog
 
 ## Table of Contents
 
+- [0.2-5](#025)
 - [0.2-4](#024)
 - [0.2-3](#023)
 - [0.2-2](#022)
@@ -13,6 +14,19 @@ title: Changelog
 - [0.1-2](#012)
 - [0.1-1](#011)
 - [0.1-0](#010)
+
+
+## 0.2-5
+
+### Change
+
+- feature: attribute support array_value type yangxikun/opentelemetry-lua#82
+- improve: add resource attrs to console export yangxikun/opentelemetry-lua#91
+- improve: allow multiple tracer providers or tracers for export yangxikun/opentelemetry-lua#92
+
+### Bugfix
+
+- Baggage header parsing should remove leading and trailing whitespaces in k/v, yangxikun/opentelemetry-lua#77
 
 ## 0.2-4
 
