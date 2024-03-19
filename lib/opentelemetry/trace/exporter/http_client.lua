@@ -32,13 +32,18 @@ function _M.new(address, timeout, headers)
     return setmetatable(self, mt)
 end
 
-function _M.do_request(self, body)
+function _M.do_request(self, body, additional_headers)
     local httpc = http.new()
     httpc:set_timeout(self.timeout * 1000)
+    local headers = self.headers
+    if additional_headers then
+        headers = additional_headers
+        for k,v in pairs(self.headers) do headers[k] = v end
+    end
 
     local res, err = httpc:request_uri(self.uri, {
         method = "POST",
-        headers = self.headers,
+        headers = headers,
         body = body,
     })
 
