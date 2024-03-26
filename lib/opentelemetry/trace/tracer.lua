@@ -66,7 +66,7 @@ end
 -- @span_start_config   [optional]
 --                          span_start_config.kind: opentelemetry.trace.span_kind.*
 --                          span_start_config.attributes: a list of attribute
--- @start_time          [optional] start time
+-- @start_time          [optional] start time: nanoseconds
 -- @return
 --                      context: new context with span
 --                      span
