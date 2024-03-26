@@ -25,8 +25,8 @@ describe("encode_spans", function()
         local ctx = context.new()
         local spans = {}
         for i=10,1,-1 do
-            ctx, span = tracer:start(ctx, "test span" .. i)
-            span:finish()
+            ctx, span = tracer:start(ctx, "test span" .. i, {}, 123456788)
+            span:finish(123456789)
             table.insert(spans, span)
         end
         local cb = exporter.new(nil)
@@ -36,6 +36,8 @@ describe("encode_spans", function()
         local resource = encoded.resource_spans[1]
         assert(#resource.instrumentation_library_spans == 1)
         assert(#resource.instrumentation_library_spans[1].spans == 10)
+        assert(resource.instrumentation_library_spans[1].spans[1].start_time_unix_nano == "123456788")
+        assert(resource.instrumentation_library_spans[1].spans[1].end_time_unix_nano == "123456789")
     end)
 
     it("one resource span and two ils for spans from distinct tracers", function()
