@@ -19,7 +19,7 @@ function _M.new(provider, il)
     return setmetatable(self, mt)
 end
 
-local function new_span(self, context, name, config)
+local function new_span(self, context, name, config, start_time)
     local span_context = context:span_context()
     if not config then
         config = {}
@@ -52,7 +52,7 @@ local function new_span(self, context, name, config)
     if not sampling_result:is_recording() then
         span = non_recording_span_new(self, new_span_context)
     else
-        span = recording_span_new(self, span_context, new_span_context, name, config)
+        span = recording_span_new(self, span_context, new_span_context, name, config, start_time)
     end
 
     return context:with_span(span), span
@@ -66,12 +66,13 @@ end
 -- @span_start_config   [optional]
 --                          span_start_config.kind: opentelemetry.trace.span_kind.*
 --                          span_start_config.attributes: a list of attribute
+-- @start_time          [optional] start time
 -- @return
 --                      context: new context with span
 --                      span
 ------------------------------------------------------------------
-function _M.start(self, context, span_name, span_start_config)
-    return new_span(self, context, span_name, span_start_config)
+function _M.start(self, context, span_name, span_start_config, start_time)
+    return new_span(self, context, span_name, span_start_config, start_time)
 end
 
 return _M

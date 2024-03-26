@@ -21,15 +21,16 @@ local mt = {
 -- @config              optional config
 --                          config.kind: span kind
 --                          config.attributes: span attributes
+-- @start_time          optional start time
 -- @return              span
 ------------------------------------------------------------------
-function _M.new(tracer, parent_ctx, ctx, name, config)
+function _M.new(tracer, parent_ctx, ctx, name, config, start_time)
     local self = {
         tracer = tracer,
         parent_ctx = parent_ctx,
         ctx = ctx,
         name = name,
-        start_time = util.time_nano(),
+        start_time = start_time or util.time_nano(),
         end_time = 0,
         kind = span_kind.validate(config.kind),
         attributes = config.attributes or {},
