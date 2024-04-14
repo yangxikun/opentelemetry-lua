@@ -1,7 +1,29 @@
 local _M = {}
 
 --- Set randomseed
-math.randomseed(ngx.time() + ngx.worker.pid())
+local random_seed = function ()
+  local seed
+  local frandom = io.open("/dev/urandom", "rb")
+  if frandom then
+    local str = frandom:read(4)
+    frandom:close()
+    if str then
+      local s = 0
+      for i = 1, 4 do
+        s = 256 * s + str:byte(i)
+      end
+      seed = s
+    end
+  end
+
+  if not seed then
+    seed = ngx.now() * 1000 + ngx.worker.pid()
+  end
+
+  return seed
+end
+
+math.randomseed(random_seed())
 
 -- performance better, but may cause clock skew
 local function ngx_time_nano()

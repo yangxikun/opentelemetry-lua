@@ -14,13 +14,13 @@ services:
     ports:
       - 80:80
   jaeger:
-    image: jaegertracing/all-in-one
+    image: jaegertracing/all-in-one:1
     ports:
       - 26686:16686
     networks:
       - opentelemetry-lua
   otel-collector:
-    image: otel/opentelemetry-collector-contrib-dev:latest
+    image: otel/opentelemetry-collector-contrib:0.98.0
     command: [ "--config=/etc/otel-collector-config.yaml" ]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
