@@ -4,16 +4,28 @@ title: Changelog
 
 ## Table of Contents
 
-- [0.2-5](#025)
-- [0.2-4](#024)
-- [0.2-3](#023)
-- [0.2-2](#022)
-- [0.2-1](#021)
-- [0.2-0](#020)
-- [0.1-3](#013)
-- [0.1-2](#012)
-- [0.1-1](#011)
-- [0.1-0](#010)
+- [0.2-6](#0.2-6)
+- [0.2-5](#0.2-5)
+- [0.2-4](#0.2-4)
+- [0.2-3](#0.2-3)
+- [0.2-2](#0.2-2)
+- [0.2-1](#0.2-1)
+- [0.2-0](#0.2-0)
+- [0.1-3](#0.1-3)
+- [0.1-2](#0.1-2)
+- [0.1-1](#0.1-1)
+- [0.1-0](#0.1-0)
+
+
+## 0.2-6
+
+### Change
+
+- feature: allow user to specify start time for new recording span yangxikun/opentelemetry-lua#86
+
+### Bugfix
+
+- duplicate trace ids in high requests distributed system yangxikun/opentelemetry-lua#95
 
 
 ## 0.2-5
