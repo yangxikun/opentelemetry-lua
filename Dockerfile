@@ -1,9 +1,10 @@
 FROM openresty/openresty:1.21.4.1-0-centos
 
-RUN yum install -y gcc
+RUN yum install -y gcc git zlib-devel
 RUN yum -y --enablerepo=powertools install libyaml-devel libffi-devel
 RUN luarocks install lua-resty-http 0.16.1-0
 RUN luarocks install lua-protobuf 0.3.3
+RUN luarocks install lua-zlib 1.2
 RUN luarocks install busted 2.0.0-1
 RUN luarocks --server=http://rocks.moonscript.org install lyaml
 
