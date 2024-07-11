@@ -11,6 +11,7 @@ local mt = {
 -- create a http client used by exporter.
 --
 -- @address             opentelemetry collector: host:port
+-- @uri_path            Custom URI path for the collector endpoint (optional)
 -- @timeout             export request timeout second
 -- @headers             export request headers
 -- @return              http client
@@ -19,7 +20,8 @@ function _M.new(address, timeout, headers)
     headers = headers or {}
     headers["Content-Type"] = "application/x-protobuf"
 
-    local uri = address .. "/v1/traces"
+    local uri_path = uri_path or "/v1/traces"
+    local uri = address .. uri_path
     if address:find("http", 1, true) ~= 1 then
         uri = "http://" .. uri
     end
