@@ -14,6 +14,7 @@ description = {
 dependencies = {
     "lua-protobuf = 0.3.3",
     "lua-resty-http = 0.16.1-0",
+    "net-url = 1.1-1",
 }
 
 build = {
