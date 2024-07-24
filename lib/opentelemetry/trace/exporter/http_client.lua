@@ -1,4 +1,5 @@
 local http = require("resty.http")
+local net_url = require("net.url")
 
 local _M = {
 }
@@ -6,6 +7,17 @@ local _M = {
 local mt = {
     __index = _M
 }
+
+local function build_uri(address)
+    local parsed_address = net_url.parse(address)
+    if parsed_address.scheme ~= "http" and parsed_address.scheme ~= "https" then
+        return build_uri("http://" .. address)
+    end
+    if parsed_address.path == "" or parsed_address.path == "/" then
+        parsed_address.path = "/v1/traces"
+    end
+    return tostring(parsed_address)
+end
 
 ------------------------------------------------------------------
 -- create a http client used by exporter.
@@ -19,13 +31,8 @@ function _M.new(address, timeout, headers)
     headers = headers or {}
     headers["Content-Type"] = "application/x-protobuf"
 
-    local uri = address .. "/v1/traces"
-    if address:find("http", 1, true) ~= 1 then
-        uri = "http://" .. uri
-    end
-
     local self = {
-        uri = uri,
+        uri = build_uri(address),
         timeout = timeout,
         headers = headers,
     }

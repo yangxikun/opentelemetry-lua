@@ -4,6 +4,7 @@ RUN yum install -y gcc
 RUN yum -y --enablerepo=powertools install libyaml-devel libffi-devel
 RUN luarocks install lua-resty-http 0.16.1-0
 RUN luarocks install lua-protobuf 0.3.3
+RUN luarocks install net-url 1.1-1
 RUN luarocks install busted 2.0.0-1
 RUN luarocks --server=http://rocks.moonscript.org install lyaml
 
