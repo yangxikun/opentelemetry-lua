@@ -1,6 +1,8 @@
 local http = require("resty.http")
 local net_url = require("net.url")
 
+local exporter_message_size_uncompressed_metric = "otel.otlp_exporter.message_uncompressed_size"
+
 local _M = {
 }
 
@@ -60,6 +62,8 @@ function _M.do_request(self, body)
         httpc:close()
         return nil, "request failed: " .. res.status
     end
+
+    otel_global.metrics_reporter:record_value(exporter_message_size_uncompressed_metric, string.len(body))
 
     return res, nil
 end
