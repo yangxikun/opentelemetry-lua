@@ -1,4 +1,15 @@
 local pb = require("pb")
+-- Disable pb's __gc metamethod (make it a no-op)
+do
+  local getmt = (debug and debug.getmetatable) or getmetatable
+  local mt = getmt(pb)
+  if type(mt) == "table" then
+    pcall(function()
+      rawset(mt, "__gc", function() end)
+    end)
+  end
+end
+
 local protoc = require("protoc").new()
 
 protoc:load([[
