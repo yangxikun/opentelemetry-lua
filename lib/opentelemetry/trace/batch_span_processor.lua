@@ -96,7 +96,18 @@ function create_timer(self, delay)
     if not hdl then
         ngx.log(ngx.ERR, "failed to create timer: ", err)
         if ngx.worker.exiting() then
-            self:flush_all()
+            -- Do NOT call flush_all() here: this branch is reached from
+            -- on_end(), which runs inline in whatever phase is finishing the
+            -- span. For HTTP spans behind e.g. Apache APISIX's opentelemetry
+            -- plugin, that can be body_filter_by_lua*/log_by_lua*, where a
+            -- synchronous export (flush_all()'s default, non-timer path)
+            -- opens a cosocket -- an API OpenResty disallows in those
+            -- phases, crashing with "API disabled in the context of ...".
+            -- A blocking export would fail once the worker is gone anyway
+            -- (that's why timer_at() just failed), so drop instead.
+            local dropped = self:get_queue_size()
+            ngx.log(ngx.WARN, "worker exiting, dropping ", dropped, " unflushed span(s)")
+            report_dropped_spans(dropped, "worker-exiting")
         end
         return
     end
