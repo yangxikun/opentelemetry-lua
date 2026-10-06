@@ -29,7 +29,7 @@ jobs:
           outputs: type=docker,dest=/tmp/openresty-image.tar
           tags: opentelemetry-lua_openresty
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: openresty-image
           path: /tmp/openresty-image.tar
