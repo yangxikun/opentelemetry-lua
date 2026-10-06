@@ -16,7 +16,7 @@ on:
 jobs:
   build-openresty:
     name: "Build openresty image"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v1
@@ -36,7 +36,7 @@ jobs:
   end-to-end-tests:
     name: "End to end tests"
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - build-openresty
     steps:
@@ -77,7 +77,7 @@ jobs:
   unit-tests:
     name: "unit tests"
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - build-openresty
     steps:
@@ -100,7 +100,7 @@ jobs:
         run: make api-test
   book-keeping:
     name: "Book-keeping"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v1
