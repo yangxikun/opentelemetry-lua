@@ -1,5 +1,5 @@
 .PHONY: doc format api-test benchmark
-CONTAINER_ORCHESTRATOR ?= docker-compose
+CONTAINER_ORCHESTRATOR ?= docker compose
 CONTAINER_ORCHESTRATOR_EXEC_OPTIONS := $(CONTAINER_ORCHESTRATOR_EXEC_OPTIONS)
 
 openresty-dev:
