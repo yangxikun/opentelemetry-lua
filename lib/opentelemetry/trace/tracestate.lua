@@ -13,19 +13,9 @@ local function validate_member_key(key)
         return nil
     end
 
-    local valid_key = string.match(key, [[^%s*([a-z][_0-9a-z%-*/]*)$]])
-    if not valid_key then
-        local tenant_id, system_id = string.match(key, [[^%s*([a-z0-9][_0-9a-z%-*/]*)@([a-z][_0-9a-z%-*/]*)$]])
-        if not tenant_id or not system_id then
-            return nil
-        end
-        if #tenant_id > 241 or #system_id > 14 then
-            return nil
-        end
-        return tenant_id .. "@" .. system_id
-    end
-
-    return valid_key
+    -- key = ( lcalpha / DIGIT ) 0*255( keychar )
+    -- keychar = lcalpha / DIGIT / "_" / "-" / "*" / "/" / "@"
+    return string.match(key, [[^%s*([a-z0-9][_0-9a-z%-*/@]*)$]])
 end
 
 local function validate_member_value(value)
