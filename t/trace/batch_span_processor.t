@@ -338,3 +338,56 @@ done
 --- grep_error_log eval
 qr/queue is full/
 --- grep_error_log_out
+
+
+=== TEST 7: batch_span_processor:create_timer, drop spans instead of a synchronous export when timer creation fails while the worker is exiting
+--- http_config
+# Forces ngx.timer.at() to fail in create_timer(), same as it legitimately
+# does near the end of a graceful worker shutdown.
+lua_max_pending_timers 0;
+--- config
+location = /t {
+    content_by_lua_block {
+        local batch_span_processor_new = require("opentelemetry.trace.batch_span_processor").new
+        local span_context_new = require("opentelemetry.trace.span_context").new
+
+        -- Simulate the worker already being in its exiting state, without
+        -- actually shutting nginx down.
+        ngx.worker.exiting = function() return true end
+
+        local exporter = {
+            export_called = false,
+            export_spans = function(self, spans)
+                -- A real exporter opens a cosocket here. If this were ever
+                -- reached synchronously from on_end() (called inline from a
+                -- request phase), that phase may disallow cosockets, e.g.
+                -- OpenResty's body_filter_by_lua*/log_by_lua*. It must only
+                -- ever be reached from a timer.
+                self.export_called = true
+            end
+        }
+
+        local batch_span_processor = batch_span_processor_new(exporter, {
+            max_export_batch_size = 2, max_queue_size = 6, inactive_timeout = 1, batch_timeout = 2})
+        batch_span_processor:on_end({
+            ctx = span_context_new("trace_id", "span_id#1", 1, "trace_state", false)
+        })
+
+        if exporter.export_called then
+            ngx.log(ngx.ERR, "expect export_spans not to be called synchronously")
+        end
+
+        ngx.say("done")
+    }
+}
+--- request
+GET /t
+--- error_code: 200
+--- response_body
+done
+--- no_error_log
+[error]
+--- grep_error_log eval
+qr/worker exiting, dropping \d+ unflushed span\(s\)/
+--- grep_error_log_out
+worker exiting, dropping 1 unflushed span(s)
