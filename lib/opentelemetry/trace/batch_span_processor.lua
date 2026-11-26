@@ -21,6 +21,15 @@ local function report_dropped_spans(count, reason)
         dropped_spans_metric, count, { reason = reason })
 end
 
+local function report_dropped_batches(batches, reason)
+    local count = 0
+    for _, batch in ipairs(batches) do
+        count = count + #batch
+    end
+    ngx.log(ngx.WARN, "dropping ", count, " unexported span(s): ", reason)
+    report_dropped_spans(count, reason)
+end
+
 local function report_result(success, err, batch_size)
     if success then
         otel_global.metrics_reporter:add_to_counter(
@@ -37,6 +46,7 @@ end
 
 local function process_batches(premature, self, batches)
     if premature then
+        report_dropped_batches(batches, "worker-exiting")
         return
     end
 
@@ -51,6 +61,7 @@ local function process_batches_timer(self, batches)
     local hdl, err = timer_at(0, process_batches, self, batches)
     if not hdl then
         ngx.log(ngx.ERR, "failed to create timer: ", err)
+        report_dropped_batches(batches, "timer-creation-failed")
     end
 end
 
@@ -94,9 +105,12 @@ end
 function create_timer(self, delay)
     local hdl, err = timer_at(delay, flush_batches, self)
     if not hdl then
-        ngx.log(ngx.ERR, "failed to create timer: ", err)
+        self.is_timer_running = false
         if ngx.worker.exiting() then
-            self:flush_all()
+            -- A span can end in a phase where the exporter cannot use cosockets.
+            self:flush_all(true)
+        else
+            ngx.log(ngx.ERR, "failed to create timer: ", err)
         end
         return
     end
